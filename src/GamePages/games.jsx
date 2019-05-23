@@ -5,7 +5,8 @@ class Games extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      gameID: null
+      gameID: null,
+      auth_token: this.props.location.token
     }
   }
 
