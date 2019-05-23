@@ -5,7 +5,10 @@ class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      occupied_seats: []
+      dealer_name: null,
+      game_is_active: false,
+      game_name: null,
+      players: []
     }
   }
 
@@ -19,7 +22,7 @@ class Game extends React.Component {
 
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
-    fetch(`http://localhost:3000/player_games?game_id=${params.id}`)
+    fetch(`http://localhost:3000/games/${params.id}`)
       .then(response => {this.handleSeatData(response)})
   }
 
@@ -30,23 +33,23 @@ class Game extends React.Component {
   handleSeatData(data) {
     data.json().then(results => {
       this.setState({
-        occupied_seats: results
+        ...results
       }, () => this.updateSeatNames())
     })
   }
 
   updateSeatNames() {
-    const { occupied_seats } = this.state
+    const { players } = this.state
 
-    occupied_seats.forEach(occupied_seat => {
-      this.updateSeatNameFor(occupied_seat)
+    players.forEach(player => {
+      this.updateSeatNameFor(player)
     })
   }
 
-  updateSeatNameFor(occupied_seat) {
-    let seat_position = document.getElementById(`seat_number_${occupied_seat.seat_number}`)
+  updateSeatNameFor(player) {
+    let seat_position = document.getElementById(`seat_number_${player.seat_number}`)
     let span = document.createElement('span')
-    span.textContent = ` ${occupied_seat.player_name}`
+    span.textContent = ` ${player.player_name}`
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
   }
