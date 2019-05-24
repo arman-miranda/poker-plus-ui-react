@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { getDataFromServer } from '../../shared/request_handlers'
 
 class Game extends React.Component {
   constructor(props) {
@@ -22,20 +23,15 @@ class Game extends React.Component {
 
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
-    fetch(`http://localhost:3000/games/${params.id}`)
-      .then(response => {this.handleSeatData(response)})
+    const data = getDataFromServer(
+      `http://localhost:3000/games/${params.id}`)
+    data.then(results =>
+      this.setState({...results}, () => this.updateSeatNames())
+    )
   }
 
   handleSeatSelection(e) {
     e.preventDefault()
-  }
-
-  handleSeatData(data) {
-    data.json().then(results => {
-      this.setState({
-        ...results
-      }, () => this.updateSeatNames())
-    })
   }
 
   updateSeatNames() {
