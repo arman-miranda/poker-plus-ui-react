@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { getDataFromServer } from '../../shared/request_handlers'
+import '../../stylesheets/game.css';
 
 class Game extends React.Component {
   constructor(props) {
@@ -51,15 +52,20 @@ class Game extends React.Component {
   }
 
   render() {
-    const { results } = this.props
+    const {
+      dealer_name,
+      game_is_active
+    } = this.state
     const { params } = this.props.match
-
-    if (results) {
-    }
 
     return (
       <div>
         <h4>Game ID: {params.id}</h4>
+        <h4>Dealer: { dealer_name }</h4>
+        <div id="dealer_action_buttons">
+          <button name="start_game">Start Game</button>
+          <button name="waitinglist">Waitinglist</button>
+        </div><br />
         <form>
           <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
           <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
@@ -71,6 +77,13 @@ class Game extends React.Component {
           <button name="seat_number" id="seat_number_8" value="8"> Seat 8 </button><br/>
           <button name="seat_number" id="seat_number_9" value="9"> Seat 9 </button><br/>
         </form>
+        { game_is_active &&
+          <div>
+            <h4>Game Logs:</h4>
+            <div id="game_logs">
+            </div>
+          </div>
+        }
       </div>
     )
   }
