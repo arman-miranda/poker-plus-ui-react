@@ -1,5 +1,5 @@
-import Games from './GamePages/games';
-import Game from './GamePages/game';
+import Games from './components/GamePages/games';
+import Game from './components/GamePages/game';
 
 export const routes = [
   {

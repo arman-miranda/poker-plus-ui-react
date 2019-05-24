@@ -1,12 +1,26 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom'
+import { getDataFromServer } from '../../shared/request_handlers'
+import GamesTable from './games_table'
 
 class Games extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      games: [],
       gameID: null
     }
+  }
+
+  componentDidMount() {
+    this.getAllGamesFromServer()
+  }
+
+  getAllGamesFromServer() {
+    const data = getDataFromServer('http://localhost:3000/games')
+    data.then(results => {
+      this.setState({games: results})
+    })
   }
 
   onFormSubmit(e) {
@@ -23,10 +37,12 @@ class Games extends React.Component {
         <form onSubmit={this.onFormSubmit.bind(this)}>
           <h4>
             GameID:
-            <input type="text" name="game_id" required={true}/><br/>
+            <input type="number" name="game_id" required={true} min="1"/>
             <input type="submit" value="Join" />
+            <input type="button" value="Host Game" />
           </h4>
         </form>
+        <GamesTable {...this.state} />
       </div>
     )
   }
