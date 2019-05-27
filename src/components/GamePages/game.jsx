@@ -7,6 +7,7 @@ class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      showGameWaitinglist: null,
       dealer_name: null,
       game_is_active: false,
       game_name: null,
@@ -51,12 +52,23 @@ class Game extends React.Component {
       .insertBefore(span, seat_position.nextSibling)
   }
 
+  handleWaitinglistRedirection(e) {
+    this.setState({
+      showGameWaitinglist: this.props.match.url
+    })
+  }
+
   render() {
     const {
       dealer_name,
-      game_is_active
+      game_is_active,
+      showGameWaitinglist
     } = this.state
     const { params } = this.props.match
+
+    if(showGameWaitinglist) {
+      return <Redirect to={`${showGameWaitinglist}/waitinglists`} />
+    }
 
     return (
       <div>
@@ -64,7 +76,10 @@ class Game extends React.Component {
         <h4>Dealer: { dealer_name }</h4>
         <div id="dealer_action_buttons">
           <button name="start_game">Start Game</button>
-          <button name="waitinglist">Waitinglist</button>
+          <button name="waitinglist"
+            onClick={this.handleWaitinglistRedirection.bind(this)}>
+            Waitinglist
+          </button>
         </div><br />
         <form>
           <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>

@@ -1,7 +1,9 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
 import { Link } from 'react-router-dom';
-import { getDataFromServer } from '../../shared/request_handlers'
+import {
+  getDataFromServer,
+  deleteDataFromServer } from '../../shared/request_handlers'
 
 class PlayerWaitinglists extends React.Component {
   constructor(props) {
@@ -52,9 +54,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   handleClick(e){
-    fetch(`http://localhost:3000/waitinglists/${e.id}`, { method: "DELETE" }).then(
-      window.location.reload()
-    )
+    deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`);
   }
 
   renderTableBody(){
