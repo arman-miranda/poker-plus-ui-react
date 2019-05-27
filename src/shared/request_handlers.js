@@ -3,8 +3,9 @@ function getDataFromServer(url) {
 }
 
 function requestGETFrom(url){
-  return fetch(url)
-    .then(response => response.json());
+  return fetch(url, {
+    credentials: 'include'
+  }).then(response => response.json());
 }
 
 export { getDataFromServer };
