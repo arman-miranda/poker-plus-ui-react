@@ -19,8 +19,9 @@ class Game extends React.Component {
 
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
-    fetch(`http://localhost:3000/player_games?game_id=${params.id}`)
-      .then(response => {this.handleSeatData(response)})
+    fetch(`http://localhost:3000/player_games?game_id=${params.id}`, {
+      credentials: 'include'
+    }).then(response => {this.handleSeatData(response)})
   }
 
   handleSeatSelection(e) {
