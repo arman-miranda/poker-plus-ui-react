@@ -1,11 +1,16 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { getDataFromServer } from '../../shared/request_handlers'
+import '../../stylesheets/game.css';
 
 class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      occupied_seats: []
+      dealer_name: null,
+      game_is_active: false,
+      game_name: null,
+      players: []
     }
   }
 
@@ -19,49 +24,48 @@ class Game extends React.Component {
 
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
-    fetch(`http://localhost:3000/player_games?game_id=${params.id}`, {
-      credentials: 'include'
-    }).then(response => {this.handleSeatData(response)})
+    const data = getDataFromServer(
+      `http://localhost:3000/games/${params.id}`)
+    data.then(results =>
+      this.setState({...results}, () => this.updateSeatNames())
+    )
   }
 
   handleSeatSelection(e) {
     e.preventDefault()
   }
 
-  handleSeatData(data) {
-    data.json().then(results => {
-      this.setState({
-        occupied_seats: results
-      }, () => this.updateSeatNames())
-    })
-  }
-
   updateSeatNames() {
-    const { occupied_seats } = this.state
+    const { players } = this.state
 
-    occupied_seats.forEach(occupied_seat => {
-      this.updateSeatNameFor(occupied_seat)
+    players.forEach(player => {
+      this.updateSeatNameFor(player)
     })
   }
 
-  updateSeatNameFor(occupied_seat) {
-    let seat_position = document.getElementById(`seat_number_${occupied_seat.seat_number}`)
+  updateSeatNameFor(player) {
+    let seat_position = document.getElementById(`seat_number_${player.seat_number}`)
     let span = document.createElement('span')
-    span.textContent = ` ${occupied_seat.player_name}`
+    span.textContent = ` ${player.player_name}`
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
   }
 
   render() {
-    const { results } = this.props
+    const {
+      dealer_name,
+      game_is_active
+    } = this.state
     const { params } = this.props.match
-
-    if (results) {
-    }
 
     return (
       <div>
         <h4>Game ID: {params.id}</h4>
+        <h4>Dealer: { dealer_name }</h4>
+        <div id="dealer_action_buttons">
+          <button name="start_game">Start Game</button>
+          <button name="waitinglist">Waitinglist</button>
+        </div><br />
         <form>
           <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
           <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
@@ -73,6 +77,13 @@ class Game extends React.Component {
           <button name="seat_number" id="seat_number_8" value="8"> Seat 8 </button><br/>
           <button name="seat_number" id="seat_number_9" value="9"> Seat 9 </button><br/>
         </form>
+        { game_is_active &&
+          <div>
+            <h4>Game Logs:</h4>
+            <div id="game_logs">
+            </div>
+          </div>
+        }
       </div>
     )
   }
