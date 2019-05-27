@@ -1,7 +1,7 @@
 import Games from './components/GamePages/games';
 import Game from './components/GamePages/game';
-import PlayerWaitinglists from './components/GamePages/playerWaitinglists';
-import GameWaitinglists from './components/GamePages/GameWaitinglists'
+import PlayerWaitinglists from './components/PlayerPages/playerWaitinglists';
+import GameWaitinglists from './components/GamePages/gameWaitinglists';
 
 export const routes = [
   {
