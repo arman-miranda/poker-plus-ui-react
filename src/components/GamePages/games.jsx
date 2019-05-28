@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { getDataFromServer } from '../../shared/request_handlers'
 import GamesTable from './games_table'
 
@@ -39,12 +39,14 @@ class Games extends React.Component {
 
     return(
       <div>
+        <Link to={`/players/${this.props.currentUser.id}/waitinglists`}>My Waitinglist</Link>
         <form onSubmit={this.onFormSubmit.bind(this)}>
           <h4>
             GameID:
             <input type="number" name="game_id" required={true} min="1"/>
             <input type="submit" value="Join" />
-            <input type="button" value="Host Game" />
+            {this.props.currentUser.is_premium &&
+            <input type="button" value="Host Game" />}
           </h4>
         </form>
         <GamesTable {...this.state} />

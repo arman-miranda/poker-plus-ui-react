@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
   deleteDataFromServer } from '../../shared/request_handlers'
@@ -9,6 +9,7 @@ class PlayerWaitinglists extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      redirectToGameLobby: false,
       player_id: this.props.match.params.id,
       waitinglists: ""
     }
@@ -61,6 +62,12 @@ class PlayerWaitinglists extends React.Component {
     deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`);
   }
 
+  handleGamesLobbyRedirection() {
+    this.setState({
+      redirectToGameLobby: true
+    })
+  }
+
   renderTableBody(){
     if(this.state.waitinglists.length) {
       const waitinglists = this.state.waitinglists
@@ -90,11 +97,17 @@ class PlayerWaitinglists extends React.Component {
   }
 
   render() {
+    if(this.state.redirectToGameLobby) {
+      return <Redirect to='/games' />
+    }
     return(
-      <table>
-        {this.renderTableHeaders()}
-        {this.renderTableBody()}
-      </table>
+      <div>
+        <button onClick={this.handleGamesLobbyRedirection.bind(this)}>Go Back to Games</button>
+        <table>
+          {this.renderTableHeaders()}
+          {this.renderTableBody()}
+        </table>
+      </div>
     )
   }
 }

@@ -12,7 +12,7 @@ class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentUser: JSON.parse(localStorage.currentUser)
+      currentUser: JSON.parse(localStorage.getItem('currentUser'))
     }
   }
 
@@ -25,7 +25,7 @@ class App extends React.Component {
 
   handleUserLogin() {
     this.setState({
-      currentUser: JSON.parse(localStorage.currentUser)
+      currentUser: JSON.parse(localStorage.getItem('currentUser'))
     })
   }
 
@@ -43,6 +43,7 @@ class App extends React.Component {
                     this.state.currentUser || route.public ? (
                       <route.component
                         {...props}
+                        currentUser={this.state.currentUser}
                         handleUserLogout={this.handleUserLogout.bind(this)}
                         handleUserLogin={this.handleUserLogin.bind(this)}
                       />

@@ -1,12 +1,16 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { getDataFromServer } from '../../shared/request_handlers'
+import {
+  getDataFromServer,
+  requestPOSTTo
+} from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 
 class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      showPlayerWaitingList: null,
       showGameWaitinglist: null,
       dealer_name: null,
       game_is_active: false,
@@ -37,7 +41,19 @@ class Game extends React.Component {
   }
 
   handleSeatSelection(e) {
+    const { currentUser } = this.props
+    const game_id = this.state.id
+
     e.preventDefault()
+    requestPOSTTo(`http://localhost:3000/waitinglists`, {
+      preferred_seat: e.target.value,
+      game_id: game_id,
+      player_id: currentUser.id
+    })
+
+    this.setState({
+      showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`
+    })
   }
 
   updateSeatNames() {
@@ -66,7 +82,8 @@ class Game extends React.Component {
     const {
       dealer_name,
       game_is_active,
-      showGameWaitinglist
+      showGameWaitinglist,
+      showPlayerWaitingList
     } = this.state
     const { params } = this.props.match
 
@@ -74,17 +91,23 @@ class Game extends React.Component {
       return <Redirect to={`${showGameWaitinglist}/waitinglists`} />
     }
 
+    if(showPlayerWaitingList) {
+      return <Redirect to={showPlayerWaitingList} />
+    }
+
     return (
       <div>
         <h4>Game ID: {params.id}</h4>
         <h4>Dealer: { dealer_name }</h4>
-        <div id="dealer_action_buttons">
-          <button name="start_game">Start Game</button>
-          <button name="waitinglist"
-            onClick={this.handleWaitinglistRedirection.bind(this)}>
-            Waitinglist
-          </button>
-        </div><br />
+        { this.props.currentUser.is_premium &&
+          <div id="dealer_action_buttons">
+            <button name="start_game">Start Game</button>
+            <button name="waitinglist"
+              onClick={this.handleWaitinglistRedirection.bind(this)}>
+              Waitinglist
+            </button>
+          </div>
+        }<br />
         <form>
           <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
           <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
