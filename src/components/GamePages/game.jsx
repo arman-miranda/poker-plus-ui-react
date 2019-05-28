@@ -27,9 +27,13 @@ class Game extends React.Component {
     const { params } = this.props.match
     const data = getDataFromServer(
       `http://localhost:3000/games/${params.id}`)
-    data.then(results =>
-      this.setState({...results}, () => this.updateSeatNames())
-    )
+    data.then(results => {
+      if(results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({...results}, () => this.updateSeatNames())
+      }
+    })
   }
 
   handleSeatSelection(e) {

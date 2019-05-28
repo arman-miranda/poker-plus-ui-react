@@ -8,7 +8,8 @@ class Login extends React.Component {
     this.state = {
       username: "",
       password: "",
-      auth_token: ""
+      isAuthenticated: false,
+      redirectionLocation: this.props.location.state.from.pathname || '/games'
     };
   }
 
@@ -33,8 +34,10 @@ class Login extends React.Component {
 
   handleResponse(response) {
     response.json().then( data => {
+      localStorage.setItem('currentUser', JSON.stringify(data))
+      this.props.handleUserLogin()
       this.setState({
-        auth_token: data["auth_token"]
+        isAuthenticated: true
       })
     })
   }
@@ -46,12 +49,11 @@ class Login extends React.Component {
   }
 
   render() {
-    if (this.state.auth_token) {
+    if (this.state.isAuthenticated) {
       return(
         <Redirect
           to={{
-            pathname: "/games",
-            token: this.state.auth_token
+            pathname: this.state.redirectionLocation,
           }}
         />
       )

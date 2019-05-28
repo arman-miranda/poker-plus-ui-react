@@ -23,7 +23,11 @@ class PlayerWaitinglists extends React.Component {
       `http://localhost:3000/players/${this.state.player_id}/waitinglists`
     )
     data.then(results => {
-      this.setState({ waitinglists: results })
+      if (results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({ waitinglists: results })
+      }
     })
   }
 

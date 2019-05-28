@@ -19,7 +19,11 @@ class Games extends React.Component {
   getAllGamesFromServer() {
     const data = getDataFromServer('http://localhost:3000/games')
     data.then(results => {
-      this.setState({games: results})
+      if (results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({games: results})
+      }
     })
   }
 
@@ -32,6 +36,7 @@ class Games extends React.Component {
     if(this.state.gameID) {
       return <Redirect to={`/games/${this.state.gameID}`} />
     }
+
     return(
       <div>
         <form onSubmit={this.onFormSubmit.bind(this)}>
