@@ -9,8 +9,16 @@ class Login extends React.Component {
       username: "",
       password: "",
       isAuthenticated: false,
-      redirectionLocation: this.props.location.state.from.pathname || '/games'
+      redirectionLocation: '/games'
     };
+  }
+
+  componentDidMount() {
+    if (this.props.location.state) {
+      this.setState({
+        redirectionLocation: this.props.location.state.from.pathname
+      })
+    }
   }
 
   onFormSubmit(e) {

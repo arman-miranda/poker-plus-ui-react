@@ -20,7 +20,7 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    document.querySelectorAll('button').forEach((button) => {
+    document.querySelectorAll('form button').forEach((button) => {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
 
@@ -43,17 +43,20 @@ class Game extends React.Component {
   handleSeatSelection(e) {
     const { currentUser } = this.props
     const game_id = this.state.id
+    const preferred_seat = e.target.value
 
     e.preventDefault()
-    requestPOSTTo(`http://localhost:3000/waitinglists`, {
-      preferred_seat: e.target.value,
-      game_id: game_id,
-      player_id: currentUser.id
-    })
+    if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
+      requestPOSTTo(`http://localhost:3000/waitinglists`, {
+        preferred_seat: preferred_seat,
+        game_id: game_id,
+        player_id: currentUser.id
+      })
 
-    this.setState({
-      showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`
-    })
+      this.setState({
+        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`
+      })
+    }
   }
 
   updateSeatNames() {
