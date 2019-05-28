@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom'
+import { getDataFromServer, requestPUTTo } from '../../shared/request_handlers'
 
 class CardSelection extends React.Component {
   constructor(props) {
@@ -13,23 +14,35 @@ class CardSelection extends React.Component {
     }
   }
 
-  onFormSubmit(e) {
-    e.preventDefault()
-    fetch(`http://localhost:3000/player_games/${this.state.id}`, {
-      method: 'PUT',
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        card1_suit: this.state.suit1,
-        card1_number: this.state.value1,
-        card2_suit: this.state.suit2,
-        card2_number: this.state.value2
-      })
+  componentDidMount() {
+    var url = `http://localhost:3000/player_games/${this.state.id}`
+    var data = getDataFromServer(url)
+
+    data.then(response => {
+      response.cards.map( (card, i) =>
+        this.setState({
+          [`suit${i+1}`]: card.suit || "",
+          [`value${i+1}`]: card.number || ""
+        })
+      );
     })
   }
 
-  onSuitChange(e) {
+  onFormSubmit(e) {
+    e.preventDefault()
+
+    var url = `http://localhost:3000/player_games/${this.state.id}`
+    var body = {
+      card1_suit: this.state.suit1,
+      card1_number: this.state.value1,
+      card2_suit: this.state.suit2,
+      card2_number: this.state.value2
+    }
+
+    requestPUTTo(url, body)
+  }
+
+  onSelectChange(e) {
     this.setState({
       [e.target.id]: e.target.value
     })
@@ -40,15 +53,15 @@ class CardSelection extends React.Component {
       <div>
         <form onSubmit={this.onFormSubmit.bind(this)}>
           Card 1:
-          <select id="suit1" onChange={this.onSuitChange.bind(this)}>
-            <option disabled selected value> -- </option>
+          <select id="suit1" onChange={this.onSelectChange.bind(this)} value={this.state.suit1}>
+            <option disabled value=""> -- </option>
             <option value="diamond">Diamonds</option>
             <option value="heart">Hearts</option>
             <option value="spade">Spades</option>
             <option value="club">Clubs</option>
           </select>
-          <select id="value1" onChange={this.onSuitChange.bind(this)}>
-            <option disabled selected value> -- </option>
+          <select id="value1" onChange={this.onSelectChange.bind(this)} value={this.state.value1}>
+            <option disabled value=""> -- </option>
             <option value="1">Ace</option>
             <option>2</option>
             <option>3</option>
@@ -65,15 +78,15 @@ class CardSelection extends React.Component {
           </select><br />
 
           Card 2:
-          <select id="suit2" onChange={this.onSuitChange.bind(this)}>
-            <option disabled selected value> -- </option>
+          <select id="suit2" onChange={this.onSelectChange.bind(this)} value={this.state.suit2}>
+            <option disabled value=""> -- </option>
             <option value="diamond">Diamonds</option>
             <option value="heart">Hearts</option>
             <option value="spade">Spades</option>
             <option value="club">Clubs</option>
           </select>
-          <select id="value2" onChange={this.onSuitChange.bind(this)}>
-            <option disabled selected value> -- </option>
+          <select id="value2" onChange={this.onSelectChange.bind(this)} value={this.state.value2}>
+            <option disabled value=""> -- </option>
             <option value="1">Ace</option>
             <option>2</option>
             <option>3</option>

@@ -8,4 +8,15 @@ function requestGETFrom(url){
   }).then(response => response.json());
 }
 
-export { getDataFromServer };
+function requestPUTTo(url, body){
+  return fetch(url, {
+    credentials: 'include',
+    method: 'PUT',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  })
+}
+
+export { getDataFromServer, requestPUTTo };
