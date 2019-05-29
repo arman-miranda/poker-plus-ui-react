@@ -16,7 +16,7 @@ function requestPUTTo(url, body){
       "Content-Type": "application/json"
     },
     body: JSON.stringify(body)
-  })
+  }).then(response => response.json());
 }
 
 export { getDataFromServer, requestPUTTo };

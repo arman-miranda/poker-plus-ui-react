@@ -10,7 +10,8 @@ class CardSelection extends React.Component {
       suit1: "",
       value1: "",
       suit2: "",
-      value2: ""
+      value2: "",
+      cardsAreSet: false
     }
   }
 
@@ -19,18 +20,14 @@ class CardSelection extends React.Component {
     var data = getDataFromServer(url)
 
     data.then(response => {
-      response.cards.map( (card, i) =>
-        this.setState({
-          [`suit${i+1}`]: card.suit || "",
-          [`value${i+1}`]: card.number || ""
-        })
-      );
+      if (response.cards.length === 2) {
+        this.setState({ cardsAreSet: true })
+      }
     })
   }
 
   onFormSubmit(e) {
     e.preventDefault()
-
     var url = `http://localhost:3000/player_games/${this.state.id}`
     var body = {
       card1_suit: this.state.suit1,
@@ -39,7 +36,11 @@ class CardSelection extends React.Component {
       card2_number: this.state.value2
     }
 
-    requestPUTTo(url, body)
+    requestPUTTo(url, body).then(response => {
+      if (response.status != "error") {
+        window.location.reload();
+      }
+    })
   }
 
   onSelectChange(e) {
@@ -49,63 +50,74 @@ class CardSelection extends React.Component {
   }
 
   render() {
-    return(
-      <div>
-        <form onSubmit={this.onFormSubmit.bind(this)}>
-          Card 1:
-          <select id="suit1" onChange={this.onSelectChange.bind(this)} value={this.state.suit1}>
-            <option disabled value=""> -- </option>
-            <option value="diamond">Diamonds</option>
-            <option value="heart">Hearts</option>
-            <option value="spade">Spades</option>
-            <option value="club">Clubs</option>
-          </select>
-          <select id="value1" onChange={this.onSelectChange.bind(this)} value={this.state.value1}>
-            <option disabled value=""> -- </option>
-            <option value="1">Ace</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
-            <option value="11">Jack</option>
-            <option value="12">Queen</option>
-            <option value="13">King</option>
-          </select><br />
+    if (this.state.cardsAreSet) {
+      return(
+        <Redirect
+          /* TODO: finalize redirect path and props here */
+          to={{
+            pathname: "/games"
+          }}
+        />
+      )
+    } else {
+      return(
+        <div>
+          <form onSubmit={this.onFormSubmit.bind(this)}>
+            Card 1:
+            <select id="suit1" onChange={this.onSelectChange.bind(this)} value={this.state.suit1}>
+              <option disabled value=""> -- </option>
+              <option value="diamond">Diamonds</option>
+              <option value="heart">Hearts</option>
+              <option value="spade">Spades</option>
+              <option value="club">Clubs</option>
+            </select>
+            <select id="value1" onChange={this.onSelectChange.bind(this)} value={this.state.value1}>
+              <option disabled value=""> -- </option>
+              <option value="1">Ace</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+              <option value="11">Jack</option>
+              <option value="12">Queen</option>
+              <option value="13">King</option>
+            </select><br />
 
-          Card 2:
-          <select id="suit2" onChange={this.onSelectChange.bind(this)} value={this.state.suit2}>
-            <option disabled value=""> -- </option>
-            <option value="diamond">Diamonds</option>
-            <option value="heart">Hearts</option>
-            <option value="spade">Spades</option>
-            <option value="club">Clubs</option>
-          </select>
-          <select id="value2" onChange={this.onSelectChange.bind(this)} value={this.state.value2}>
-            <option disabled value=""> -- </option>
-            <option value="1">Ace</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
-            <option value="11">Jack</option>
-            <option value="12">Queen</option>
-            <option value="13">King</option>
-          </select><br />
+            Card 2:
+            <select id="suit2" onChange={this.onSelectChange.bind(this)} value={this.state.suit2}>
+              <option disabled value=""> -- </option>
+              <option value="diamond">Diamonds</option>
+              <option value="heart">Hearts</option>
+              <option value="spade">Spades</option>
+              <option value="club">Clubs</option>
+            </select>
+            <select id="value2" onChange={this.onSelectChange.bind(this)} value={this.state.value2}>
+              <option disabled value=""> -- </option>
+              <option value="1">Ace</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+              <option value="11">Jack</option>
+              <option value="12">Queen</option>
+              <option value="13">King</option>
+            </select><br />
 
-          <input type="submit" value="Submit"></input>
-        </form>
-      </div>
-    )
+            <input type="submit" value="Submit"></input>
+          </form>
+        </div>
+      )
+    }
   }
 }
 
