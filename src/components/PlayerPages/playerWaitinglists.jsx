@@ -97,7 +97,8 @@ class PlayerWaitinglists extends React.Component {
   }
 
   render() {
-    if(this.state.redirectToGameLobby) {
+    const { redirectToGameLobby } = this.state
+    if(redirectToGameLobby) {
       return <Redirect to='/games' />
     }
     return(

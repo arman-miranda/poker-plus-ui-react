@@ -12,6 +12,7 @@ class Game extends React.Component {
     this.state = {
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
+      player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
       game_name: null,
@@ -41,11 +42,11 @@ class Game extends React.Component {
   }
 
   handleSeatSelection(e) {
+    e.preventDefault()
     const { currentUser } = this.props
     const game_id = this.state.id
     const preferred_seat = e.target.value
 
-    e.preventDefault()
     if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
       requestPOSTTo(`http://localhost:3000/waitinglists`, {
         preferred_seat: preferred_seat,
@@ -54,7 +55,8 @@ class Game extends React.Component {
       })
 
       this.setState({
-        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`
+        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
+        player_preferred_seat: preferred_seat
       })
     }
   }
