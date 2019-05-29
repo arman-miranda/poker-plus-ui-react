@@ -7,6 +7,8 @@ import {
 import { routes } from '../routes';
 import { Redirect } from 'react-router-dom';
 import PageNotFound from '../public/pageNotFound'
+import Cable from 'actioncable'
+import { deleteDataFromServer } from '../shared/request_handlers'
 
 class App extends React.Component {
   constructor(props) {
@@ -16,11 +18,31 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    if(this.state.currentUser) {
+      this.createSocket()
+    }
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    this.app = cable.subscriptions.create({
+      channel: 'UserChannel'
+    }, {
+      connected: () => {},
+      received: (data) => {
+        console.log(data)
+      },
+    }
+    )
+  }
+
   handleUserLogout() {
     localStorage.currentUser = null;
     this.setState({
       currentUser: null
     })
+    deleteDataFromServer('localhost:3000/logout')
   }
 
   handleUserLogin() {
