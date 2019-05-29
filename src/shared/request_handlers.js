@@ -26,8 +26,20 @@ function requestPOSTTo(url, body) {
   });
 }
 
+function requestPUTTo(url, body){
+  return fetch(url, {
+    credentials: 'include',
+    method: 'PUT',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  }).then(response => response.json());
+}
+
 export {
   getDataFromServer,
   deleteDataFromServer,
-  requestPOSTTo
+  requestPOSTTo,
+  requestPUTTo
 };
