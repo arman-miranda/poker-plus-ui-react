@@ -7,26 +7,31 @@ import CardSelection from './components/GamePages/cardSelection';
 
 export const routes = [
   {
+    public: false,
     exact: true,
     path: '/games',
     component: Games
   },
   {
+    public: false,
     exact: true,
     path: '/games/:id',
     component: Game
   },
   {
+    public: true,
     exact: true,
     path: '/login',
     component: Login
   },
   {
+    public: false,
     exact: true,
     path: '/players/:id/waitinglists',
     component: PlayerWaitinglists
   },
   {
+    public: false,
     exact: true,
     path: '/games/:id/waitinglists',
     component: GameWaitinglists

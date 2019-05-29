@@ -21,7 +21,11 @@ class GameWaitinglists extends React.Component {
       `http://localhost:3000/games/${this.state.game_id}/waitinglists`
     )
     data.then(results => {
-      this.setState({ waitinglists: results })
+      if (results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({ waitinglists: results })
+      }
     })
   }
 

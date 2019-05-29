@@ -1,12 +1,18 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { getDataFromServer } from '../../shared/request_handlers'
+import {
+  getDataFromServer,
+  requestPOSTTo
+} from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 
 class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      showPlayerWaitingList: null,
+      showGameWaitinglist: null,
+      player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
       game_name: null,
@@ -15,7 +21,7 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    document.querySelectorAll('button').forEach((button) => {
+    document.querySelectorAll('form button').forEach((button) => {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
 
@@ -26,13 +32,33 @@ class Game extends React.Component {
     const { params } = this.props.match
     const data = getDataFromServer(
       `http://localhost:3000/games/${params.id}`)
-    data.then(results =>
-      this.setState({...results}, () => this.updateSeatNames())
-    )
+    data.then(results => {
+      if(results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({...results}, () => this.updateSeatNames())
+      }
+    })
   }
 
   handleSeatSelection(e) {
     e.preventDefault()
+    const { currentUser } = this.props
+    const game_id = this.state.id
+    const preferred_seat = e.target.value
+
+    if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
+      requestPOSTTo(`http://localhost:3000/waitinglists`, {
+        preferred_seat: preferred_seat,
+        game_id: game_id,
+        player_id: currentUser.id
+      })
+
+      this.setState({
+        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
+        player_preferred_seat: preferred_seat
+      })
+    }
   }
 
   updateSeatNames() {
@@ -51,21 +77,42 @@ class Game extends React.Component {
       .insertBefore(span, seat_position.nextSibling)
   }
 
+  handleWaitinglistRedirection(e) {
+    this.setState({
+      showGameWaitinglist: this.props.match.url
+    })
+  }
+
   render() {
     const {
       dealer_name,
-      game_is_active
+      game_is_active,
+      showGameWaitinglist,
+      showPlayerWaitingList
     } = this.state
     const { params } = this.props.match
+
+    if(showGameWaitinglist) {
+      return <Redirect to={`${showGameWaitinglist}/waitinglists`} />
+    }
+
+    if(showPlayerWaitingList) {
+      return <Redirect to={showPlayerWaitingList} />
+    }
 
     return (
       <div>
         <h4>Game ID: {params.id}</h4>
         <h4>Dealer: { dealer_name }</h4>
-        <div id="dealer_action_buttons">
-          <button name="start_game">Start Game</button>
-          <button name="waitinglist">Waitinglist</button>
-        </div><br />
+        { this.props.currentUser.is_premium &&
+          <div id="dealer_action_buttons">
+            <button name="start_game">Start Game</button>
+            <button name="waitinglist"
+              onClick={this.handleWaitinglistRedirection.bind(this)}>
+              Waitinglist
+            </button>
+          </div>
+        }<br />
         <form>
           <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
           <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
