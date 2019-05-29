@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { requestPOSTTo } from '../../shared/request_handlers';
 
 class Login extends React.Component {
   constructor(props) {
@@ -23,21 +24,14 @@ class Login extends React.Component {
 
   onFormSubmit(e) {
     e.preventDefault();
+    const url = `http://localhost:3000/authenticate`
     const creds = {
       "username": this.state.username,
       "password": this.state.password
     }
 
-    fetch(`http://localhost:3000/authenticate`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers:{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(creds)
-      }
-    ).then( response => {this.handleResponse(response)} )
+    requestPOSTTo(url, creds)
+      .then( response => {this.handleResponse(response)} )
   }
 
   handleResponse(response) {
