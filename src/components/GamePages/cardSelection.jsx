@@ -7,6 +7,7 @@ class CardSelection extends React.Component {
     super(props)
     this.state = {
       id: this.props.match.params.id,
+      gameId: this.props.match.params.game_id,
       suit1: "",
       value1: "",
       suit2: "",
@@ -53,9 +54,8 @@ class CardSelection extends React.Component {
     if (this.state.cardsAreSet) {
       return(
         <Redirect
-          /* TODO: finalize redirect path and props here */
           to={{
-            pathname: "/games"
+            pathname: `/games/${this.state.gameId}`
           }}
         />
       )
