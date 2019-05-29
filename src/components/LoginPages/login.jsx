@@ -41,13 +41,15 @@ class Login extends React.Component {
   }
 
   handleResponse(response) {
-    response.json().then( data => {
-      localStorage.setItem('currentUser', JSON.stringify(data))
-      this.props.handleUserLogin()
-      this.setState({
-        isAuthenticated: true
+    if (response.status === 200) {
+      response.json().then( data => {
+        localStorage.setItem('currentUser', JSON.stringify(data))
+        this.props.handleUserLogin()
+        this.setState({
+          isAuthenticated: true
+        })
       })
-    })
+    }
   }
 
   onFormChange(e) {
