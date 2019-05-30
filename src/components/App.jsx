@@ -33,9 +33,7 @@ class App extends React.Component {
     }, {
       connected: () => {},
       received: (data) => {
-        this.setState({
-          alert_props: data
-        })
+        this.handleAlerts(data)
       },
     }
     )
