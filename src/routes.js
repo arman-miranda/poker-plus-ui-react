@@ -8,6 +8,12 @@ import CardSelection from './components/GamePages/cardSelection';
 export const routes = [
   {
     public: false,
+    exact: false,
+    path: '/',
+    component: Games
+  },
+  {
+    public: false,
     exact: true,
     path: '/games',
     component: Games
