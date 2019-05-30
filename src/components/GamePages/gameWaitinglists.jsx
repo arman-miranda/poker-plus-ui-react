@@ -48,12 +48,7 @@ class GameWaitinglists extends React.Component {
   }
 
   handleAcceptClick(e){
-    var url = `http://localhost:3000/waitinglists/${e.id}`
-    var body = {
-      id: e.id
-    }
-
-    requestPUTTo(url, body).then(response => {
+    requestPUTTo(`http://localhost:3000/waitinglists/${e.id}`).then(response => {
       if (response.status != "error") {
         window.location.reload();
       }
@@ -78,17 +73,16 @@ class GameWaitinglists extends React.Component {
       return (
         <tbody>
           {waitinglists.map( waitinglist => {
-              if(!waitinglist.is_accepted)
-                return (
-                  <tr key={waitinglist.id}>
-                    <td>{waitinglist.player.username}</td>
-                    <td>{waitinglist.preferred_seat}</td>
-                    <td>
-                      <button onClick={this.handleAcceptClick.bind(this, waitinglist)}>Accept</button>
-                      <button onClick={this.handleDenyClick.bind(this, waitinglist)}>Deny</button>
-                    </td>
-                  </tr>
-                )
+              return (
+                <tr key={waitinglist.id}>
+                  <td>{waitinglist.player.username}</td>
+                  <td>{waitinglist.preferred_seat}</td>
+                  <td>
+                    <button onClick={this.handleAcceptClick.bind(this, waitinglist)}>Accept</button>
+                    <button onClick={this.handleDenyClick.bind(this, waitinglist)}>Deny</button>
+                  </td>
+                </tr>
+              )
             })}
         </tbody>
       )
