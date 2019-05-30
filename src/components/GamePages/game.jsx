@@ -56,13 +56,19 @@ class Game extends React.Component {
   handleSeatSelection(e) {
     e.preventDefault()
     const preferred_seat = e.target.value
+    const { currentUser } = this.props
     if (this.checkIfExistingPlayer()){
       if (window.confirm('This action will send a seat change request to the dealer.')) {
         this.handleSubmitSeat(e)
+        window.location.reload()
       }
     } else {
       if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
         this.handleSubmitSeat(e)
+        this.setState({
+          showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
+          player_preferred_seat: preferred_seat
+        })
       }
     }
   }
@@ -76,13 +82,6 @@ class Game extends React.Component {
       preferred_seat: preferred_seat,
       game_id: game_id,
       player_id: currentUser.id
-    }).then(response => {
-      if (response.status != "error") {
-        this.setState({
-          showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
-          player_preferred_seat: preferred_seat
-        })
-      }
     })
   }
 
