@@ -43,7 +43,7 @@ class GameAcceptanceAlert extends React.Component {
       <div>
         { body }
         <Link
-          to="/games/1"
+          to={`/games/${waitinglist && waitinglist.game_id}`}
           onClick={this.handleGameJoin.bind(this, waitinglist)}>
           Join
         </Link>
