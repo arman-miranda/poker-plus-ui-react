@@ -52,12 +52,13 @@ class Game extends React.Component {
         preferred_seat: preferred_seat,
         game_id: game_id,
         player_id: currentUser.id
-      })
+      }).then(
+        this.setState({
+          showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
+          player_preferred_seat: preferred_seat
+        })
+      )
 
-      this.setState({
-        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
-        player_preferred_seat: preferred_seat
-      })
     }
   }
 
