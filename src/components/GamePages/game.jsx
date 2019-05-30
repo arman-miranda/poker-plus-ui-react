@@ -41,24 +41,49 @@ class Game extends React.Component {
     })
   }
 
+  checkIfExistingPlayer() {
+    const { currentUser } = this.props
+    const players = this.state.players
+    var existingPlayer = false
+    { players.map(player => {
+      if(player.player_name === currentUser.username){
+        existingPlayer = true
+      }
+    })}
+    return existingPlayer
+  }
+
   handleSeatSelection(e) {
     e.preventDefault()
+    const preferred_seat = e.target.value
+    if (this.checkIfExistingPlayer()){
+      if (window.confirm('This action will send a seat change request to the dealer.')) {
+        this.handleSubmitSeat(e)
+      }
+    } else {
+      if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
+        this.handleSubmitSeat(e)
+      }
+    }
+  }
+
+  handleSubmitSeat(e) {
     const { currentUser } = this.props
     const game_id = this.state.id
     const preferred_seat = e.target.value
 
-    if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
-      requestPOSTTo(`http://localhost:3000/waitinglists`, {
-        preferred_seat: preferred_seat,
-        game_id: game_id,
-        player_id: currentUser.id
-      })
-
-      this.setState({
-        showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
-        player_preferred_seat: preferred_seat
-      })
-    }
+    requestPOSTTo(`http://localhost:3000/waitinglists`, {
+      preferred_seat: preferred_seat,
+      game_id: game_id,
+      player_id: currentUser.id
+    }).then(response => {
+      if (response.status != "error") {
+        this.setState({
+          showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
+          player_preferred_seat: preferred_seat
+        })
+      }
+    })
   }
 
   updateSeatNames() {
@@ -75,6 +100,7 @@ class Game extends React.Component {
     span.textContent = ` ${player.player_name}`
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
+    seat_position.setAttribute("disabled","disabled")
   }
 
   handleWaitinglistRedirection(e) {
