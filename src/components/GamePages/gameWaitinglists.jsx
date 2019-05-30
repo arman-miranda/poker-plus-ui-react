@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
 import { Link } from 'react-router-dom';
-import { getDataFromServer } from '../../shared/request_handlers'
+import { getDataFromServer, requestPUTTo } from '../../shared/request_handlers'
 
 class GameWaitinglists extends React.Component {
   constructor(props) {
@@ -46,8 +46,12 @@ class GameWaitinglists extends React.Component {
     )
   }
 
-  handleAcceptClick(e){
-    // todo: ACCEPT LOGIC
+  handleAcceptClick(waitinglist, e){
+    if(window.confirm("This action will add this user to the game.")){
+      requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+        player_id: waitinglist.player.id
+      })
+    }
   }
 
   handleDenyClick(e){
