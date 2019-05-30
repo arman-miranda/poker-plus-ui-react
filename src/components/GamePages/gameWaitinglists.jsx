@@ -1,14 +1,15 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
-import { Link } from 'react-router-dom';
-import { getDataFromServer } from '../../shared/request_handlers'
+import { Link, Redirect } from 'react-router-dom';
+import { getDataFromServer, deleteDataFromServer, requestPUTTo } from '../../shared/request_handlers'
 
 class GameWaitinglists extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       game_id: this.props.match.params.id,
-      waitinglists: ""
+      waitinglists: "",
+      redirectToGameLobby: false
     }
   }
 
@@ -47,13 +48,28 @@ class GameWaitinglists extends React.Component {
   }
 
   handleAcceptClick(e){
-    // todo: ACCEPT LOGIC
+    var url = `http://localhost:3000/waitinglists/${e.id}`
+    var body = {
+      id: e.id
+    }
+
+    requestPUTTo(url, body).then(response => {
+      if (response.status != "error") {
+        window.location.reload();
+      }
+    })
   }
 
   handleDenyClick(e){
-    fetch(`http://localhost:3000/waitinglists/${e.id}`, { method: "DELETE" }).then(
+    deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`).then(
       window.location.reload()
     )
+  }
+
+  handleGamesLobbyRedirection() {
+    this.setState({
+      redirectToGameLobby: true
+    })
   }
 
   renderTableBody(){
@@ -62,16 +78,17 @@ class GameWaitinglists extends React.Component {
       return (
         <tbody>
           {waitinglists.map( waitinglist => {
-              return (
-                <tr key={waitinglist.id}>
-                  <td>{waitinglist.player.username}</td>
-                  <td>{waitinglist.preferred_seat}</td>
-                  <td>
-                    <button onClick={this.handleAcceptClick.bind(this, waitinglist)}>Accept</button>
-                    <button onClick={this.handleDenyClick.bind(this, waitinglist)}>Deny</button>
-                  </td>
-                </tr>
-              )
+              if(!waitinglist.is_accepted)
+                return (
+                  <tr key={waitinglist.id}>
+                    <td>{waitinglist.player.username}</td>
+                    <td>{waitinglist.preferred_seat}</td>
+                    <td>
+                      <button onClick={this.handleAcceptClick.bind(this, waitinglist)}>Accept</button>
+                      <button onClick={this.handleDenyClick.bind(this, waitinglist)}>Deny</button>
+                    </td>
+                  </tr>
+                )
             })}
         </tbody>
       )
@@ -85,11 +102,19 @@ class GameWaitinglists extends React.Component {
   }
 
   render() {
+    const { redirectToGameLobby } = this.state
+    if(redirectToGameLobby) {
+      return <Redirect to={`/games/${this.state.game_id}`} />
+    }
+
     return(
+      <div>
+      <button onClick={this.handleGamesLobbyRedirection.bind(this)}>Go Back to Games</button>
       <table>
         {this.renderTableHeaders()}
         {this.renderTableBody()}
       </table>
+    </div>
     )
   }
 }
