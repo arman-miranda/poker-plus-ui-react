@@ -5,6 +5,7 @@ import {
   requestPOSTTo
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
+import Cable from 'actioncable'
 
 class Game extends React.Component {
   constructor(props) {
@@ -26,6 +27,27 @@ class Game extends React.Component {
     })
 
     this.handleCurrentSeatAssignments()
+    this.createSocket()
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let gameId = this.props.match.params.id
+
+    this.app = cable.subscriptions.create(
+      {
+        channel: 'GameChannel',
+        game_id: gameId
+      },
+      {
+        connected: () => {},
+        received: (data) => {
+          if (data.message === "PlayerAddedToGame") {
+            this.handleCurrentSeatAssignments()
+          }
+        },
+      }
+    )
   }
 
   handleCurrentSeatAssignments() {
@@ -63,6 +85,7 @@ class Game extends React.Component {
   }
 
   updateSeatNames() {
+    this.clearSeatNames()
     const { players } = this.state
 
     players.forEach(player => {
@@ -70,9 +93,17 @@ class Game extends React.Component {
     })
   }
 
+  clearSeatNames() {
+    var spans = document.getElementsByClassName("seatSpan")
+    while(spans[0]) {
+      spans[0].parentNode.removeChild(spans[0])
+    }
+  }
+
   updateSeatNameFor(player) {
     let seat_position = document.getElementById(`seat_number_${player.seat_number}`)
     let span = document.createElement('span')
+    span.setAttribute("class", "seatSpan")
     span.textContent = ` ${player.player_name}`
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
