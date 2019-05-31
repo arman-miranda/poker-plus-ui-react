@@ -43,14 +43,11 @@ class Game extends React.Component {
 
   checkIfExistingPlayer() {
     const { currentUser } = this.props
-    const players = this.state.players
-    var existingPlayer = false
-    { players.map(player => {
-      if(player.player_name === currentUser.username){
-        existingPlayer = true
-      }
-    })}
-    return existingPlayer
+    const { players } = this.state
+    let existingPlayer = players.find(player => {
+      return player.player_name === currentUser.username
+    })
+    return !!existingPlayer
   }
 
   handleSeatSelection(e) {

@@ -9,6 +9,12 @@ export const routes = [
   {
     public: false,
     exact: true,
+    path: '/',
+    component: Games
+  },
+  {
+    public: false,
+    exact: true,
     path: '/games',
     component: Games
   },
