@@ -1,14 +1,15 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
-import { Link } from 'react-router-dom';
-import { getDataFromServer, requestPUTTo } from '../../shared/request_handlers'
+import { Link, Redirect } from 'react-router-dom';
+import { getDataFromServer, deleteDataFromServer, requestPUTTo } from '../../shared/request_handlers'
 
 class GameWaitinglists extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       game_id: this.props.match.params.id,
-      waitinglists: ""
+      waitinglists: "",
+      redirectToGameLobby: false
     }
   }
 
@@ -55,9 +56,15 @@ class GameWaitinglists extends React.Component {
   }
 
   handleDenyClick(e){
-    fetch(`http://localhost:3000/waitinglists/${e.id}`, { method: "DELETE" }).then(
+    deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`).then(
       window.location.reload()
     )
+  }
+
+  handleGamesLobbyRedirection() {
+    this.setState({
+      redirectToGameLobby: true
+    })
   }
 
   renderTableBody(){
@@ -89,11 +96,19 @@ class GameWaitinglists extends React.Component {
   }
 
   render() {
+    const { redirectToGameLobby } = this.state
+    if(redirectToGameLobby) {
+      return <Redirect to={`/games/${this.state.game_id}`} />
+    }
+
     return(
+      <div>
+      <button onClick={this.handleGamesLobbyRedirection.bind(this)}>Go Back to Games</button>
       <table>
         {this.renderTableHeaders()}
         {this.renderTableBody()}
       </table>
+    </div>
     )
   }
 }
