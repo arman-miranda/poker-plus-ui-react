@@ -47,12 +47,12 @@ class GameWaitinglists extends React.Component {
     )
   }
 
-  handleAcceptClick(e){
-    requestPUTTo(`http://localhost:3000/waitinglists/${e.id}`).then(response => {
-      if (response.status != "error") {
-        window.location.reload();
-      }
-    })
+  handleAcceptClick(waitinglist, e){
+    if(window.confirm("This action will add this user to the game.")){
+      requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+        player_id: waitinglist.player.id
+      })
+    }
   }
 
   handleDenyClick(e){

@@ -1,14 +1,17 @@
 import React from 'react';
 import { Link, Redirect } from 'react-router-dom'
-import { getDataFromServer } from '../../shared/request_handlers'
+import { getDataFromServer, requestPOSTTo } from '../../shared/request_handlers'
 import GamesTable from './games_table'
+import Modal from "./modal";
 
 class Games extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       games: [],
-      gameID: null
+      gameID: null,
+      displayModal: false,
+      gameName: ""
     }
   }
 
@@ -23,6 +26,30 @@ class Games extends React.Component {
         this.props.handleUserLogout()
       } else {
         this.setState({games: results})
+      }
+    })
+  }
+
+  showModal() {
+    this.setState({ displayModal: !this.state.displayModal })
+  }
+
+  onModalChange(e) {
+    this.setState({
+      [e.target.id]: e.target.value
+    })
+  }
+
+  onModalSubmit(e) {
+    e.preventDefault()
+    var url = `http://localhost:3000/games/`
+    var body = {
+      name: this.state.name
+    }
+
+    requestPOSTTo(url, body).then(response => {
+      if (response.status !== "error") {
+        window.location.reload();
       }
     })
   }
@@ -46,9 +73,15 @@ class Games extends React.Component {
             <input type="number" name="game_id" required={true} min="1"/>
             <input type="submit" value="Join" />
             {this.props.currentUser.is_premium &&
-            <input type="button" value="Host Game" />}
+            <input type="button" value="Host Game" onClick={this.showModal.bind(this)}/>}
           </h4>
         </form>
+        <Modal displayModal={this.state.displayModal} onClose={this.showModal.bind(this)}>
+          <form id="hostGameForm" method="post" onSubmit={this.onModalSubmit.bind(this)} >
+            <input id="name" autoFocus={true} name="gameName" required={true} onChange={this.onModalChange.bind(this)} />
+            <input type="submit" value="Create Game" />
+          </form>
+        </Modal>
         <GamesTable {...this.state} />
       </div>
     )
