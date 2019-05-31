@@ -42,8 +42,10 @@ class Game extends React.Component {
       {
         connected: () => {},
         received: (data) => {
-          if (data.message === "PlayerAddedToGame") {
-            this.handleCurrentSeatAssignments()
+          if (data.new_players) {
+            this.setState({
+              players: data.new_players
+            }, () => this.updateSeatNames())
           }
         },
       }
