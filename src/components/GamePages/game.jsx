@@ -41,25 +41,45 @@ class Game extends React.Component {
     })
   }
 
+  checkIfExistingPlayer() {
+    const { currentUser } = this.props
+    const { players } = this.state
+    let existingPlayer = players.find(player => {
+      return player.player_name === currentUser.username
+    })
+    return !!existingPlayer
+  }
+
   handleSeatSelection(e) {
     e.preventDefault()
-    const { currentUser } = this.props
-    const game_id = this.state.id
     const preferred_seat = e.target.value
-
-    if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
-      requestPOSTTo(`http://localhost:3000/waitinglists`, {
-        preferred_seat: preferred_seat,
-        game_id: game_id,
-        player_id: currentUser.id
-      }).then(
+    const { currentUser } = this.props
+    if (this.checkIfExistingPlayer()){
+      if (window.confirm('This action will send a seat change request to the dealer.')) {
+        this.handleSubmitSeat(e)
+        window.location.reload()
+      }
+    } else {
+      if (window.confirm(`Are you sure you want to pick seat #${preferred_seat}`)) {
+        this.handleSubmitSeat(e)
         this.setState({
           showPlayerWaitingList: `/players/${currentUser.id}/waitinglists`,
           player_preferred_seat: preferred_seat
         })
-      )
-
+      }
     }
+  }
+
+  handleSubmitSeat(e) {
+    const { currentUser } = this.props
+    const game_id = this.state.id
+    const preferred_seat = e.target.value
+
+    requestPOSTTo(`http://localhost:3000/waitinglists`, {
+      preferred_seat: preferred_seat,
+      game_id: game_id,
+      player_id: currentUser.id
+    })
   }
 
   updateSeatNames() {
@@ -76,6 +96,7 @@ class Game extends React.Component {
     span.textContent = ` ${player.player_name}`
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
+    seat_position.setAttribute("disabled","disabled")
   }
 
   handleWaitinglistRedirection(e) {
