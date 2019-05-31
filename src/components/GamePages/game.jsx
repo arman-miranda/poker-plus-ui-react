@@ -30,6 +30,10 @@ class Game extends React.Component {
     this.createSocket()
   }
 
+  componentWillUnmount() {
+    this.app.unsubscribe()
+  }
+
   createSocket() {
     let cable = Cable.createConsumer('ws://localhost:3000/cable')
     let gameId = this.props.match.params.id
