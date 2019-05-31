@@ -21,7 +21,7 @@ class PlayerWaitinglists extends React.Component {
 
   fetchWatingLists() {
     const data = getDataFromServer(
-      `http://localhost:3000/players/${this.state.player_id}/waitinglists`
+      `http://poker-test-api.herokuapp.com/players/${this.state.player_id}/waitinglists`
     )
     data.then(results => {
       if (results.error) {
@@ -59,7 +59,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   handleClick(e){
-    deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`);
+    deleteDataFromServer(`http://poker-test-api.herokuapp.com/waitinglists/${e.id}`);
   }
 
   handleGamesLobbyRedirection() {

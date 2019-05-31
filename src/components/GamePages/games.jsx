@@ -20,7 +20,7 @@ class Games extends React.Component {
   }
 
   getAllGamesFromServer() {
-    const data = getDataFromServer('http://localhost:3000/games')
+    const data = getDataFromServer('http://poker-test-api.herokuapp.com/games')
     data.then(results => {
       if (results.error) {
         this.props.handleUserLogout()
@@ -42,7 +42,7 @@ class Games extends React.Component {
 
   onModalSubmit(e) {
     e.preventDefault()
-    var url = `http://localhost:3000/games/`
+    var url = `http://poker-test-api.herokuapp.com/games/`
     var body = {
       name: this.state.name
     }
