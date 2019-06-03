@@ -1,5 +1,6 @@
 import React from 'react';
 import GameAcceptanceAlert from './GameAcceptanceAlert';
+import GameStartAlert from './GameStartAlert';
 
 class Alert extends React.Component {
   constructor(props) {
@@ -30,7 +31,13 @@ class Alert extends React.Component {
           <GameAcceptanceAlert {...this.state}
             handleDismissAlert={this.props.handleDismissAlert.bind(this)} />
         )
-      } else {
+      } else if (this.state.alert_props.alert_type === 'game_start') {
+        return(
+          <GameStartAlert {...this.state}
+            handleDismissAlert={this.props.handleDismissAlert.bind(this)} />
+        )
+      }
+      else {
         return this.state.alert_props.body
       }
     }

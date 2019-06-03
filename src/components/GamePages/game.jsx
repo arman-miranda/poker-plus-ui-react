@@ -50,6 +50,8 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
+          } else {
+            this.props.handleAlerts(data)
           }
         },
       }
@@ -142,6 +144,14 @@ class Game extends React.Component {
     })
   }
 
+  handleStartGame() {
+    if(window.confirm('Are you sure you want to start the game?')) {
+      getDataFromServer(
+        `http://localhost:3000/games/${this.state.id}/request_game_start`
+      )
+    }
+  }
+
   render() {
     const {
       dealer_name,
@@ -165,7 +175,10 @@ class Game extends React.Component {
         <h4>Dealer: { dealer_name }</h4>
         { this.props.currentUser.is_premium &&
           <div id="dealer_action_buttons">
-            <button name="start_game">Start Game</button>
+            <button name="start_game"
+              onClick={this.handleStartGame.bind(this)}>
+              Start Game
+            </button>
             <button name="waitinglist"
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
