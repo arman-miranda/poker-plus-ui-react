@@ -38,11 +38,14 @@ class CardSelection extends React.Component {
       card2_value: this.state.value2
     }
 
-    requestPOSTTo(url, body).then(response => {
-      if (response.status !== "error") {
-        window.location.reload();
-      }
-    })
+    requestPOSTTo(url, body)
+      .then(response => { this.handleResponse(response) })
+  }
+
+  handleResponse(response) {
+    if (response.status !== "error") {
+      window.location.reload();
+    }
   }
 
   onSelectChange(e) {
