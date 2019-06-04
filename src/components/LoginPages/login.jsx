@@ -24,7 +24,7 @@ class Login extends React.Component {
 
   onFormSubmit(e) {
     e.preventDefault();
-    const url = `https://poker-test-api.herokuapp.com/authenticate`
+    const url = `http://poker-test-api.herokuapp.com/authenticate`
     const creds = {
       "username": this.state.username,
       "password": this.state.password

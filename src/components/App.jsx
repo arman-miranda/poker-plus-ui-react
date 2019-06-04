@@ -27,11 +27,13 @@ class App extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-test-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('ws://poker-test-api.herokuapp.com/cable')
     this.app = cable.subscriptions.create({
       channel: 'UserChannel'
     }, {
-      connected: () => {},
+      connected: () => {
+        console.log("Connected to UserChannel");
+      },
       received: (data) => {
         this.handleAlerts(data)
       },
@@ -44,7 +46,7 @@ class App extends React.Component {
     this.setState({
       currentUser: null
     })
-    deleteDataFromServer('https://poker-test-api.herokuapp.com/logout')
+    deleteDataFromServer('http://poker-test-api.herokuapp.com/logout')
   }
 
   handleUserLogin() {

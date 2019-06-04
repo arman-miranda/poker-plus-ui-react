@@ -35,7 +35,7 @@ class Game extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-test-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('ws://poker-test-api.herokuapp.com/cable')
     let gameId = this.props.match.params.id
 
     this.app = cable.subscriptions.create(
@@ -44,7 +44,9 @@ class Game extends React.Component {
         game_id: gameId
       },
       {
-        connected: () => {},
+        connected: () => {
+          console.log("conencted to GameChannel");
+        },
         received: (data) => {
           if (data.new_players) {
             this.setState({
@@ -59,7 +61,7 @@ class Game extends React.Component {
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
     const data = getDataFromServer(
-      `https://poker-test-api.herokuapp.com/games/${params.id}`)
+      `http://poker-test-api.herokuapp.com/games/${params.id}`)
     data.then(results => {
       if(results.error) {
         this.props.handleUserLogout()
@@ -103,7 +105,7 @@ class Game extends React.Component {
     const game_id = this.state.id
     const preferred_seat = e.target.value
 
-    requestPOSTTo(`https://poker-test-api.herokuapp.com/waitinglists`, {
+    requestPOSTTo(`http://poker-test-api.herokuapp.com/waitinglists`, {
       preferred_seat: preferred_seat,
       game_id: game_id,
       player_id: currentUser.id
