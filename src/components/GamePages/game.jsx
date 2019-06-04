@@ -35,7 +35,7 @@ class Game extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('ws://poker-test-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('wss://poker-test-api.herokuapp.com/cable')
     let gameId = this.props.match.params.id
 
     this.app = cable.subscriptions.create(
