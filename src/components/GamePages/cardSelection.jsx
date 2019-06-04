@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom'
-import { getDataFromServer, requestPUTTo } from '../../shared/request_handlers'
+import { getDataFromServer, requestPOSTTo } from '../../shared/request_handlers'
 
 class CardSelection extends React.Component {
   constructor(props) {
@@ -22,7 +22,7 @@ class CardSelection extends React.Component {
     var data = getDataFromServer(url)
 
     data.then(response => {
-      if (response.cards.length === 2) {
+      if (response.cards && response.cards.length === 2) {
         this.setState({ cardsAreSet: true })
       }
     })
@@ -31,19 +31,23 @@ class CardSelection extends React.Component {
   onFormSubmit(e) {
     e.preventDefault()
     const {id, gameId} = this.state
-    var url = `http://localhost:3000/games/${gameId}/player_games/${id}`
+    var url = `http://localhost:3000/games/${gameId}/player_games/${id}/cards`
     var body = {
+      player_game_id: this.state.id,
       card1_suit: this.state.suit1,
-      card1_number: this.state.value1,
+      card1_value: this.state.value1,
       card2_suit: this.state.suit2,
-      card2_number: this.state.value2
+      card2_value: this.state.value2
     }
 
-    requestPUTTo(url, body).then(response => {
-      if (response.status != "error") {
-        window.location.reload();
-      }
-    })
+    requestPOSTTo(url, body)
+      .then(response => { this.handleResponse(response) })
+  }
+
+  handleResponse(response) {
+    if (response.status !== "error") {
+      window.location.reload();
+    }
   }
 
   onSelectChange(e) {
