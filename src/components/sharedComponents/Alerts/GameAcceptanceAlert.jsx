@@ -20,7 +20,7 @@ class GameAcceptanceAlert extends React.Component {
   handleGameJoin() {
     const { player_id, game_id, preferred_seat } = this.state.waitinglist
 
-    requestPOSTTo('http://poker-test-api.herokuapp.com/player_games', {
+    requestPOSTTo('https://poker-test-api.herokuapp.com/player_games', {
       player_id: player_id,
       game_id: game_id,
       preferred_seat: preferred_seat
@@ -32,7 +32,7 @@ class GameAcceptanceAlert extends React.Component {
   handleDismiss() {
     const { id } = this.state.waitinglist
 
-    deleteDataFromServer(`http://poker-test-api.herokuapp.com/waitinglists/${id}`).then(
+    deleteDataFromServer(`https://poker-test-api.herokuapp.com/waitinglists/${id}`).then(
       this.props.handleDismissAlert()
     )
   }

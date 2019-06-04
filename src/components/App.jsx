@@ -44,7 +44,7 @@ class App extends React.Component {
     this.setState({
       currentUser: null
     })
-    deleteDataFromServer('http://poker-test-api.herokuapp.com/logout')
+    deleteDataFromServer('https://poker-test-api.herokuapp.com/logout')
   }
 
   handleUserLogin() {

@@ -17,7 +17,7 @@ class CardSelection extends React.Component {
   }
 
   componentDidMount() {
-    var url = `http://poker-test-api.herokuapp.com/player_games/${this.state.id}`
+    var url = `https://poker-test-api.herokuapp.com/player_games/${this.state.id}`
     var data = getDataFromServer(url)
 
     data.then(response => {
@@ -29,7 +29,7 @@ class CardSelection extends React.Component {
 
   onFormSubmit(e) {
     e.preventDefault()
-    var url = `http://poker-test-api.herokuapp.com/player_games/${this.state.id}`
+    var url = `https://poker-test-api.herokuapp.com/player_games/${this.state.id}`
     var body = {
       card1_suit: this.state.suit1,
       card1_number: this.state.value1,
