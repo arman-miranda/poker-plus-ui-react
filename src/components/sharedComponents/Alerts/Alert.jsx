@@ -13,14 +13,15 @@ class Alert extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if(this.props.alert_props.body !== prevProps.alert_props.body) {
       this.setState({
-        alert_props: this.props.alert_props
+        alert_props: this.props.alert_props,
       })
     }
   }
 
   componentDidMount() {
     this.setState({
-      alert_props: this.props.alert_props
+      alert_props: this.props.alert_props,
+      currentUser: this.props.currentUser
     })
   }
 

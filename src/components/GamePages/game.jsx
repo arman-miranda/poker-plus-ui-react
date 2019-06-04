@@ -2,7 +2,8 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
-  requestPOSTTo
+  requestPOSTTo,
+  requestPUTTo
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
@@ -13,10 +14,12 @@ class Game extends React.Component {
     this.state = {
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
+      showCardSelectionScreen: null,
       player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
       game_name: null,
+      joining_players: [],
       players: []
     }
   }
@@ -37,19 +40,30 @@ class Game extends React.Component {
   createSocket() {
     let cable = Cable.createConsumer('ws://localhost:3000/cable')
     let gameId = this.props.match.params.id
+    const playerId = this.props.currentUser.id
 
     this.app = cable.subscriptions.create(
       {
         channel: 'GameChannel',
-        game_id: gameId
+        game_id: gameId,
+        player_id: playerId
       },
       {
         connected: () => {},
         received: (data) => {
+          console.log(data)
           if (data.new_players) {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
+          } else if (data.joining_players) {
+            this.setState({
+              ...data
+            })
+          } else if (data.showCardSelectionScreen) {
+            this.setState({
+              ...data
+            })
           } else {
             this.props.handleAlerts(data)
           }
@@ -145,10 +159,24 @@ class Game extends React.Component {
   }
 
   handleStartGame() {
+
     if(window.confirm('Are you sure you want to start the game?')) {
       getDataFromServer(
         `http://localhost:3000/games/${this.state.id}/request_game_start`
       )
+      setTimeout(() => {
+        const {joining_players} = this.state
+        if (joining_players.length < 2) {
+          getDataFromServer(
+            `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
+          )
+        } else {
+          requestPUTTo(
+            `http://localhost:3000/games/${this.state.id}`,
+            {game_is_active: true}
+          ).then(result => console.log(result))
+        }
+      }, 10000)
     }
   }
 
@@ -157,7 +185,8 @@ class Game extends React.Component {
       dealer_name,
       game_is_active,
       showGameWaitinglist,
-      showPlayerWaitingList
+      showPlayerWaitingList,
+      showCardSelectionScreen
     } = this.state
     const { params } = this.props.match
 
@@ -166,7 +195,11 @@ class Game extends React.Component {
     }
 
     if(showPlayerWaitingList) {
-      return <Redirect to={showPlayerWaitingList} />
+
+    }
+
+    if(showCardSelectionScreen) {
+      return <Redirect to={showCardSelectionScreen} />
     }
 
     return (
@@ -186,15 +219,33 @@ class Game extends React.Component {
           </div>
         }<br />
         <form>
-          <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
-          <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
-          <button name="seat_number" id="seat_number_3" value="3"> Seat 3 </button><br/>
-          <button name="seat_number" id="seat_number_4" value="4"> Seat 4 </button><br/>
-          <button name="seat_number" id="seat_number_5" value="5"> Seat 5 </button><br/>
-          <button name="seat_number" id="seat_number_6" value="6"> Seat 6 </button><br/>
-          <button name="seat_number" id="seat_number_7" value="7"> Seat 7 </button><br/>
-          <button name="seat_number" id="seat_number_8" value="8"> Seat 8 </button><br/>
-          <button name="seat_number" id="seat_number_9" value="9"> Seat 9 </button><br/>
+          <button name="seat_number" id="seat_number_1" value="1">
+            Seat 1
+          </button><br/>
+          <button name="seat_number" id="seat_number_2" value="2">
+            Seat 2
+          </button><br/>
+          <button name="seat_number" id="seat_number_3" value="3">
+            Seat 3
+          </button><br/>
+          <button name="seat_number" id="seat_number_4" value="4">
+            Seat 4
+          </button><br/>
+          <button name="seat_number" id="seat_number_5" value="5">
+            Seat 5
+          </button><br/>
+          <button name="seat_number" id="seat_number_6" value="6">
+            Seat 6
+          </button><br/>
+          <button name="seat_number" id="seat_number_7" value="7">
+            Seat 7
+          </button><br/>
+          <button name="seat_number" id="seat_number_8" value="8">
+            Seat 8
+          </button><br/>
+          <button name="seat_number" id="seat_number_9" value="9">
+            Seat 9
+          </button><br/>
         </form>
         { game_is_active &&
           <div>

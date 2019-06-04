@@ -16,6 +16,11 @@ class GameStartAlert extends React.Component {
   }
 
   handleJoining() {
+    const {game_id, player_game_id} = this.state
+    requestPUTTo(
+      `http://localhost:3000/games/${game_id}/player_games/${player_game_id}`,
+      { player_is_active: true }
+    )
   }
 
   handlePassing() {
