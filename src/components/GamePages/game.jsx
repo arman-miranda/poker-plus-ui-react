@@ -20,7 +20,8 @@ class Game extends React.Component {
       game_is_active: false,
       game_name: null,
       joining_players: [],
-      players: []
+      players: [],
+      current_logs: ""
     }
   }
 
@@ -137,6 +138,26 @@ class Game extends React.Component {
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
+
+    if (this.readyForRoundStart()) {
+      this.handleRoundStates()
+    }
+  }
+
+  handleRoundStates() {
+    const { currently_playing, big_blind, small_blind } = this.state
+
+    if (currently_playing === small_blind) {
+      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+        player_action: 'small_blind'
+      })
+    } else if (currently_playing === big_blind) {
+      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+        player_action: 'big_blind'
+      })
+    } else {
+      // Use notif here?
+    }
   }
 
   clearSeatNames() {
@@ -191,7 +212,7 @@ class Game extends React.Component {
     const { joining_players } = this.state;
 
     return joining_players.every((joining_player) => {
-      return joining_player['card_dealt?']
+      return joining_player['cards_dealt?']
     });
   }
 
