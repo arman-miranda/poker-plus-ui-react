@@ -159,7 +159,6 @@ class Game extends React.Component {
   }
 
   handleStartGame() {
-
     if(window.confirm('Are you sure you want to start the game?')) {
       getDataFromServer(
         `http://localhost:3000/games/${this.state.id}/request_game_start`
@@ -178,6 +177,14 @@ class Game extends React.Component {
         }
       }, 10000)
     }
+  }
+
+  readyForRoundStart() {
+    const { joining_players } = this.state;
+
+    return joining_players.every((joining_player) => {
+      return joining_player['card_dealt?']
+    });
   }
 
   render() {
@@ -200,6 +207,10 @@ class Game extends React.Component {
 
     if(showCardSelectionScreen) {
       return <Redirect to={showCardSelectionScreen} />
+    }
+
+    if(this.readyForRoundStart()) {
+      alert('Round has started')
     }
 
     return (
