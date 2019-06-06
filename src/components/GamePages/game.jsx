@@ -64,6 +64,10 @@ class Game extends React.Component {
             this.setState({
               ...data
             })
+          } else if (data.button) {
+            this.setState({
+              ...data
+            })
           } else {
             this.props.handleAlerts(data)
           }
@@ -172,7 +176,11 @@ class Game extends React.Component {
         } else {
           requestPUTTo(
             `http://localhost:3000/games/${this.state.id}`,
-            {game_is_active: true}
+            {
+              game_is_active: true,
+              change_button: true,
+              joining_players: joining_players
+            }
           ).then(result => console.log(result))
         }
       }, 10000)
@@ -207,10 +215,6 @@ class Game extends React.Component {
 
     if(showCardSelectionScreen) {
       return <Redirect to={showCardSelectionScreen} />
-    }
-
-    if(this.readyForRoundStart()) {
-      alert('Round has started')
     }
 
     return (
