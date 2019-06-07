@@ -6,6 +6,7 @@ import {
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
+import CommunityCardModal from "./communityCardModal";
 
 class Game extends React.Component {
   constructor(props) {
@@ -17,8 +18,26 @@ class Game extends React.Component {
       dealer_name: null,
       game_is_active: false,
       game_name: null,
-      players: []
+      players: [],
+      community_card_modal: "",
     }
+  }
+
+  nullifyCommunityCards() {
+    this.setState({
+      communityCards: {
+        flop1_suit: null,
+        flop1_value: null,
+        flop2_suit: null,
+        flop2_value: null,
+        flop3_suit: null,
+        flop3_value: null,
+        turn1_suit: null,
+        turn1_value: null,
+        river1_suit: null,
+        river1_value: null
+      }
+    })
   }
 
   componentDidMount() {
@@ -28,6 +47,7 @@ class Game extends React.Component {
 
     this.handleCurrentSeatAssignments()
     this.createSocket()
+    this.nullifyCommunityCards()
   }
 
   componentWillUnmount() {
@@ -142,6 +162,29 @@ class Game extends React.Component {
     })
   }
 
+  handleSetCommunityCards(e){
+    this.setState({
+      community_card_modal: e.target.value
+    })
+  }
+
+  handleCommunityCardModalClose() {
+    this.setState({ community_card_modal: "" })
+    this.nullifyCommunityCards()
+  }
+
+  handleCommunityCardModalSubmit(e) {
+    e.preventDefault()
+    /* TODO: put API put request here */
+    this.setState({ community_card_modal: "" })
+  }
+
+  handleCommunityCardSelectChange(e) {
+    var communityCards = this.state.communityCards
+    communityCards[e.target.id] = e.target.value
+    this.setState({communityCards})
+  }
+
   render() {
     const {
       dealer_name,
@@ -150,6 +193,15 @@ class Game extends React.Component {
       showPlayerWaitingList
     } = this.state
     const { params } = this.props.match
+
+    var SUITS = ["diamond", "heart", "spade", "club"]
+    var NUMBERS = [...Array(11).keys()].slice(1,11)
+    NUMBERS[0] = "Ace"
+    NUMBERS = NUMBERS.concat(["Jack","Queen","King"])
+
+    let cardCount = 0
+    this.state.community_card_modal === "flop" ? cardCount = 3 : cardCount = 1
+    var cardSet = [...Array(cardCount).keys()]
 
     if(showGameWaitinglist) {
       return <Redirect to={`${showGameWaitinglist}/waitinglists`} />
@@ -170,6 +222,42 @@ class Game extends React.Component {
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
             </button>
+            <br /> {/* TODO: call handleSetCommunityCards the game logic instead of buttons */}
+            {
+              ["Flop", "Turn", "River"].map((type, i) => {
+                return(
+                  <button
+                    key = {type + i}
+                    name = {"set"+type}
+                    value = {type.toLowerCase()}
+                    disabled = {this.state.community_card_modal !== ""}
+                    onClick = {this.handleSetCommunityCards.bind(this)}>
+                    {"Set " + type}</button>
+                )
+              })
+            }
+            <CommunityCardModal displayModal={this.state.community_card_modal !== ""}>
+              <form id="communityCardModal" method="post" className={this.state.community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
+                {
+                  cardSet.map((i) => {
+                    return(
+                      <div key={i}>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                          <option disabled value=""> -- </option>
+                          {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
+                        </select>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                          <option disabled value=""> -- </option>
+                          {NUMBERS.map((number, i) => { return <option key={number + i} value={i+1}>{number}</option> })}
+                        </select>
+                      </div>
+                    )
+                  })
+                }
+                <input type="submit" value={`Set ${this.state.community_card_modal}`} /><br />
+                <input type="submit" value="Close" onClick={this.handleCommunityCardModalClose.bind(this)} />
+              </form>
+            </CommunityCardModal>
           </div>
         }<br />
         <form>
