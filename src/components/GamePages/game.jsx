@@ -7,11 +7,13 @@ import {
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
+import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 
 class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      alert_props: null,
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
       showCardSelectionScreen: null,
@@ -57,17 +59,29 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
-          } else if (data.joining_players) {
+            /* } else if (data.joining_players) {
+             *   this.setState({
+             *     ...data
+             *   })
+             * } else if (data.showCardSelectionScreen) {
+             *   this.setState({
+             *     ...data
+             *   })
+             * } else if (data.button) {
+             *   this.setState({
+             *     ...data
+             *   }) */
+          } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
             })
-          } else if (data.showCardSelectionScreen) {
+          } else if(data.currently_playing) {
             this.setState({
               ...data
-            })
-          } else if (data.button) {
+            }, () => { this.handleRoundStates() })
+          } else if (data.alert_type === 'turn_action') {
             this.setState({
-              ...data
+              alert_props: {...data}
             })
           } else {
             this.props.handleAlerts(data)
@@ -75,6 +89,16 @@ class Game extends React.Component {
         },
       }
     )
+  }
+
+  handleAlertDismissal() {
+    this.setState({alert_props: null})
+  }
+
+  willUpdateStateData(data) {
+    return data.joining_players ||
+           data.showCardSelectionScreen ||
+           data.button
   }
 
   handleCurrentSeatAssignments() {
@@ -133,30 +157,36 @@ class Game extends React.Component {
 
   updateSeatNames() {
     this.clearSeatNames()
-    const { players } = this.state
+    const { players, currently_playing } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
 
-    if (this.readyForRoundStart()) {
+    if (this.readyForRoundStart() && currently_playing) {
       this.handleRoundStates()
     }
   }
 
   handleRoundStates() {
-    const { currently_playing, big_blind, small_blind } = this.state
+    const {
+      currently_playing,
+      big_blind,
+      small_blind,
+      joining_players } = this.state
 
     if (currently_playing === small_blind) {
       requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
-        player_action: 'small_blind'
+        player_action: 'small_blind',
+        currently_playing: currently_playing,
+        joining_players: joining_players
       })
     } else if (currently_playing === big_blind) {
       requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
-        player_action: 'big_blind'
+        player_action: 'big_blind',
+        currently_playing: currently_playing,
+        joining_players: joining_players
       })
-    } else {
-      // Use notif here?
     }
   }
 
@@ -218,6 +248,7 @@ class Game extends React.Component {
 
   render() {
     const {
+      alert_props,
       dealer_name,
       game_is_active,
       showGameWaitinglist,
@@ -240,6 +271,15 @@ class Game extends React.Component {
 
     return (
       <div>
+        { alert_props &&
+          <TurnActionAlert
+            {...this.state.alert_props}
+            game_id = {this.state.id}
+            currently_playing = { this.state.currently_playing }
+            joining_players = {this.state.joining_players}
+            handleAlertDismissal = {this.handleAlertDismissal.bind(this)}
+          />
+        }
         <h4>Game ID: {params.id}</h4>
         <h4>Dealer: { dealer_name }</h4>
         { this.props.currentUser.is_premium &&
