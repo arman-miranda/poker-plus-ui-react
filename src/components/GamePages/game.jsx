@@ -2,7 +2,8 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
-  requestPOSTTo
+  requestPOSTTo,
+  requestPUTTo
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
@@ -175,7 +176,23 @@ class Game extends React.Component {
 
   handleCommunityCardModalSubmit(e) {
     e.preventDefault()
-    /* TODO: put API put request here */
+    let body = []
+    let cardType = e.target.className
+    let cardCount = 0
+    cardType === "flop" ? cardCount = 3 : cardCount = 1
+    let cardSet = [...Array(cardCount).keys()]
+
+    cardSet.map((i) => {
+      body.push({
+        "suit": this.state.communityCards[cardType + (i+1) + "_suit"],
+        "value": this.state.communityCards[cardType + (i+1) + "_value"]
+      })
+    })
+
+    let url = `http://localhost:3000/games/${this.state.id}/game_card/${this.state.game_card_id}`
+    requestPUTTo(url, {"cards": body})
+
+    this.nullifyCommunityCards()
     this.setState({ community_card_modal: "" })
   }
 
