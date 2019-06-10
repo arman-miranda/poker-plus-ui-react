@@ -2,6 +2,7 @@ import React from 'react';
 import '../../stylesheets/games_table.css';
 import { Link, Redirect } from 'react-router-dom';
 import { getDataFromServer, deleteDataFromServer, requestPUTTo } from '../../shared/request_handlers'
+import Cable from 'actioncable';
 
 class GameWaitinglists extends React.Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class GameWaitinglists extends React.Component {
 
   componentDidMount() {
     this.fetchWatingLists()
+    this.createSocket()
   }
 
   fetchWatingLists() {
@@ -28,6 +30,26 @@ class GameWaitinglists extends React.Component {
         this.setState({ waitinglists: results })
       }
     })
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let gameId = this.props.match.params.id
+
+    this.app = cable.subscriptions.create(
+      {
+        channel: 'GameWaitinglistChannel',
+        game_id: gameId
+      },
+      {
+        connected: () => {},
+        received: (data) => {
+          if (data.message === "GameWaitinglistUpdated") {
+            this.fetchWatingLists()
+          }
+        },
+      }
+    )
   }
 
   renderTableHeaders() {
