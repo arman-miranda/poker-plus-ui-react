@@ -7,11 +7,8 @@ import {
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
-<<<<<<< HEAD
 import CommunityCardModal from "./communityCardModal";
-=======
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
->>>>>>> 8c4e3871dbb2e9b002d6a95acf81d5f8370c5a7b
 
 class Game extends React.Component {
   constructor(props) {
@@ -25,14 +22,11 @@ class Game extends React.Component {
       dealer_name: null,
       game_is_active: false,
       game_name: null,
-<<<<<<< HEAD
       players: [],
       community_card_modal: "",
-=======
       joining_players: [],
       players: [],
       current_logs: ""
->>>>>>> 8c4e3871dbb2e9b002d6a95acf81d5f8370c5a7b
     }
   }
 
@@ -277,6 +271,7 @@ class Game extends React.Component {
     var communityCards = this.state.communityCards
     communityCards[e.target.id] = e.target.value
     this.setState({communityCards})
+  }
 
   handleStartGame() {
     if(window.confirm('Are you sure you want to start the game?')) {
