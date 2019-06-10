@@ -80,23 +80,15 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
-            /* } else if (data.joining_players) {
-             *   this.setState({
-             *     ...data
-             *   })
-             * } else if (data.showCardSelectionScreen) {
-             *   this.setState({
-             *     ...data
-             *   })
-             * } else if (data.button) {
-             *   this.setState({
-             *     ...data
-             *   }) */
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
             })
-          } else if(data.currently_playing) {
+          } else if (data.action_type === 'game_start') {
+            this.setState({
+              ...data
+            })
+          } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
             }, () => { this.handleRoundStates() })
@@ -180,32 +172,33 @@ class Game extends React.Component {
 
   updateSeatNames() {
     this.clearSeatNames()
-    const { players, currently_playing } = this.state
+    const { players, big_blind } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
 
-    if (this.readyForRoundStart() && currently_playing) {
+    if (this.readyForRoundStart() && big_blind) {
       this.handleRoundStates()
     }
   }
 
   handleRoundStates() {
     const {
+      id,
       currently_playing,
       big_blind,
       small_blind,
       joining_players } = this.state
 
     if (currently_playing === small_blind) {
-      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+      requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'small_blind',
         currently_playing: currently_playing,
         joining_players: joining_players
       })
     } else if (currently_playing === big_blind) {
-      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+      requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'big_blind',
         currently_playing: currently_playing,
         joining_players: joining_players
