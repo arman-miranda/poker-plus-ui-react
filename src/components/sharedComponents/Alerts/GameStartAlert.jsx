@@ -20,10 +20,15 @@ class GameStartAlert extends React.Component {
     requestPUTTo(
       `http://localhost:3000/games/${game_id}/player_games/${player_game_id}`,
       { player_is_active: true }
-    )
+    ).then(this.props.handleDismissAlert())
   }
 
   handlePassing() {
+    const { game_id, player_game_id } = this.state
+    requestPUTTo(
+      `http://localhost:3000/games/${game_id}/player_games/${player_game_id}`,
+      { player_is_active: false }
+    ).then(this.props.handleDismissAlert())
   }
 
   render() {

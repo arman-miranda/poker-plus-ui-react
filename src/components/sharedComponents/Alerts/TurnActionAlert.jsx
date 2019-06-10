@@ -10,6 +10,7 @@ class TurnActionAlert extends React.Component {
   }
 
   componentDidMount() {
+    this.props.handleAppAlertDismissal()
     this.determineCallCheckAction()
   }
 
@@ -28,7 +29,7 @@ class TurnActionAlert extends React.Component {
   determineCallCheckAction() {
     const { last_action } = this.props
 
-    if (last_action === 'check'){
+    if (last_action === 'check' || last_action === 'bet'){
       this.setState({
         call_check_action: 'check'
       });

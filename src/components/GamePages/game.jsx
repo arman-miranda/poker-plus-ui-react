@@ -352,6 +352,7 @@ class Game extends React.Component {
             currently_playing = { this.state.currently_playing }
             joining_players = {this.state.joining_players}
             handleAlertDismissal = {this.handleAlertDismissal.bind(this)}
+            handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
         <h4>Game ID: {params.id}</h4>
