@@ -104,6 +104,8 @@ class Game extends React.Component {
             this.setState({
               alert_props: {...data}
             })
+          } else if (data.event === 'round_ended') {
+            this.handleRoundEnd(data.round)
           } else {
             this.props.handleAlerts(data)
           }
@@ -234,10 +236,17 @@ class Game extends React.Component {
     })
   }
 
+  handleRoundEnd(round) {
+    let cardType = ["flop","turn","river"][round-1]
+    this.setState({ community_card_modal: cardType })
+  }
+
+  initializeGameCard(game_card_id) {
+    this.setState({ game_card_id })
+  }
+
   handleSetCommunityCards(e){
-    this.setState({
-      community_card_modal: e.target.value
-    })
+    this.setState({ community_card_modal: e.target.value })
   }
 
   handleCommunityCardModalClose() {
@@ -292,7 +301,10 @@ class Game extends React.Component {
               change_button: true,
               joining_players: joining_players
             }
-          ).then(result => console.log(result))
+          ).then(result => {
+            console.log(result)
+            this.initializeGameCard(result.game_card.id)
+          })
         }
       }, 10000)
     }
@@ -361,22 +373,9 @@ class Game extends React.Component {
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
             </button>
-            <br /> {/* TODO: call handleSetCommunityCards the game logic instead of buttons */}
-            {
-              ["Flop", "Turn", "River"].map((type, i) => {
-                return(
-                  <button
-                    key = {type + i}
-                    name = {"set"+type}
-                    value = {type.toLowerCase()}
-                    disabled = {this.state.community_card_modal !== ""}
-                    onClick = {this.handleSetCommunityCards.bind(this)}>
-                    {"Set " + type}</button>
-                )
-              })
-            }
             <CommunityCardModal displayModal={this.state.community_card_modal !== ""}>
               <form id="communityCardModal" method="post" className={this.state.community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
+                <h4>Set {this.state.community_card_modal}</h4>
                 {
                   cardSet.map((i) => {
                     return(
