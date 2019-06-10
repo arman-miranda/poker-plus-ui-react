@@ -35,8 +35,7 @@ class App extends React.Component {
       received: (data) => {
         this.handleAlerts(data)
       },
-    }
-    )
+    })
   }
 
   handleUserLogout() {
@@ -68,6 +67,7 @@ class App extends React.Component {
   handleShowAlert() {
     return(
       <Alert
+        currentUser={this.state.currentUser}
         alert_props={this.state.alert_props}
         handleDismissAlert={this.handleDismissAlert.bind(this)} />
     )

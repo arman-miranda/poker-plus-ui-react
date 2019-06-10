@@ -7,20 +7,32 @@ import {
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
+<<<<<<< HEAD
 import CommunityCardModal from "./communityCardModal";
+=======
+import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
+>>>>>>> 8c4e3871dbb2e9b002d6a95acf81d5f8370c5a7b
 
 class Game extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      alert_props: null,
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
+      showCardSelectionScreen: null,
       player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
       game_name: null,
+<<<<<<< HEAD
       players: [],
       community_card_modal: "",
+=======
+      joining_players: [],
+      players: [],
+      current_logs: ""
+>>>>>>> 8c4e3871dbb2e9b002d6a95acf81d5f8370c5a7b
     }
   }
 
@@ -58,23 +70,62 @@ class Game extends React.Component {
   createSocket() {
     let cable = Cable.createConsumer('ws://localhost:3000/cable')
     let gameId = this.props.match.params.id
+    const playerId = this.props.currentUser.id
 
     this.app = cable.subscriptions.create(
       {
         channel: 'GameChannel',
-        game_id: gameId
+        game_id: gameId,
+        player_id: playerId
       },
       {
         connected: () => {},
         received: (data) => {
+          console.log(data)
           if (data.new_players) {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
+            /* } else if (data.joining_players) {
+             *   this.setState({
+             *     ...data
+             *   })
+             * } else if (data.showCardSelectionScreen) {
+             *   this.setState({
+             *     ...data
+             *   })
+             * } else if (data.button) {
+             *   this.setState({
+             *     ...data
+             *   }) */
+          } else if (this.willUpdateStateData(data)) {
+            this.setState({
+              ...data
+            })
+          } else if(data.currently_playing) {
+            this.setState({
+              ...data
+            }, () => { this.handleRoundStates() })
+          } else if (data.alert_type === 'turn_action') {
+            this.setState({
+              alert_props: {...data}
+            })
+          } else {
+            this.props.handleAlerts(data)
           }
         },
       }
     )
+  }
+
+  handleAlertDismissal() {
+    this.setState({alert_props: null})
+  }
+
+  willUpdateStateData(data) {
+    return data.joining_players ||
+           data.showCardSelectionScreen ||
+           data.button
   }
 
   handleCurrentSeatAssignments() {
@@ -133,11 +184,37 @@ class Game extends React.Component {
 
   updateSeatNames() {
     this.clearSeatNames()
-    const { players } = this.state
+    const { players, currently_playing } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
+
+    if (this.readyForRoundStart() && currently_playing) {
+      this.handleRoundStates()
+    }
+  }
+
+  handleRoundStates() {
+    const {
+      currently_playing,
+      big_blind,
+      small_blind,
+      joining_players } = this.state
+
+    if (currently_playing === small_blind) {
+      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+        player_action: 'small_blind',
+        currently_playing: currently_playing,
+        joining_players: joining_players
+      })
+    } else if (currently_playing === big_blind) {
+      requestPOSTTo(`http://localhost:3000/games/${this.state.id}/player_rounds`, {
+        player_action: 'big_blind',
+        currently_playing: currently_playing,
+        joining_players: joining_players
+      })
+    }
   }
 
   clearSeatNames() {
@@ -200,14 +277,48 @@ class Game extends React.Component {
     var communityCards = this.state.communityCards
     communityCards[e.target.id] = e.target.value
     this.setState({communityCards})
+
+  handleStartGame() {
+    if(window.confirm('Are you sure you want to start the game?')) {
+      getDataFromServer(
+        `http://localhost:3000/games/${this.state.id}/request_game_start`
+      )
+      setTimeout(() => {
+        const {joining_players} = this.state
+        if (joining_players.length < 2) {
+          getDataFromServer(
+            `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
+          )
+        } else {
+          requestPUTTo(
+            `http://localhost:3000/games/${this.state.id}`,
+            {
+              game_is_active: true,
+              change_button: true,
+              joining_players: joining_players
+            }
+          ).then(result => console.log(result))
+        }
+      }, 10000)
+    }
+  }
+
+  readyForRoundStart() {
+    const { joining_players } = this.state;
+
+    return joining_players.every((joining_player) => {
+      return joining_player['cards_dealt?']
+    });
   }
 
   render() {
     const {
+      alert_props,
       dealer_name,
       game_is_active,
       showGameWaitinglist,
-      showPlayerWaitingList
+      showPlayerWaitingList,
+      showCardSelectionScreen
     } = this.state
     const { params } = this.props.match
 
@@ -225,16 +336,32 @@ class Game extends React.Component {
     }
 
     if(showPlayerWaitingList) {
-      return <Redirect to={showPlayerWaitingList} />
+
+    }
+
+    if(showCardSelectionScreen) {
+      return <Redirect to={showCardSelectionScreen} />
     }
 
     return (
       <div>
+        { alert_props &&
+          <TurnActionAlert
+            {...this.state.alert_props}
+            game_id = {this.state.id}
+            currently_playing = { this.state.currently_playing }
+            joining_players = {this.state.joining_players}
+            handleAlertDismissal = {this.handleAlertDismissal.bind(this)}
+          />
+        }
         <h4>Game ID: {params.id}</h4>
         <h4>Dealer: { dealer_name }</h4>
         { this.props.currentUser.is_premium &&
           <div id="dealer_action_buttons">
-            <button name="start_game">Start Game</button>
+            <button name="start_game"
+              onClick={this.handleStartGame.bind(this)}>
+              Start Game
+            </button>
             <button name="waitinglist"
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
@@ -278,15 +405,33 @@ class Game extends React.Component {
           </div>
         }<br />
         <form>
-          <button name="seat_number" id="seat_number_1" value="1"> Seat 1 </button><br/>
-          <button name="seat_number" id="seat_number_2" value="2"> Seat 2 </button><br/>
-          <button name="seat_number" id="seat_number_3" value="3"> Seat 3 </button><br/>
-          <button name="seat_number" id="seat_number_4" value="4"> Seat 4 </button><br/>
-          <button name="seat_number" id="seat_number_5" value="5"> Seat 5 </button><br/>
-          <button name="seat_number" id="seat_number_6" value="6"> Seat 6 </button><br/>
-          <button name="seat_number" id="seat_number_7" value="7"> Seat 7 </button><br/>
-          <button name="seat_number" id="seat_number_8" value="8"> Seat 8 </button><br/>
-          <button name="seat_number" id="seat_number_9" value="9"> Seat 9 </button><br/>
+          <button name="seat_number" id="seat_number_1" value="1">
+            Seat 1
+          </button><br/>
+          <button name="seat_number" id="seat_number_2" value="2">
+            Seat 2
+          </button><br/>
+          <button name="seat_number" id="seat_number_3" value="3">
+            Seat 3
+          </button><br/>
+          <button name="seat_number" id="seat_number_4" value="4">
+            Seat 4
+          </button><br/>
+          <button name="seat_number" id="seat_number_5" value="5">
+            Seat 5
+          </button><br/>
+          <button name="seat_number" id="seat_number_6" value="6">
+            Seat 6
+          </button><br/>
+          <button name="seat_number" id="seat_number_7" value="7">
+            Seat 7
+          </button><br/>
+          <button name="seat_number" id="seat_number_8" value="8">
+            Seat 8
+          </button><br/>
+          <button name="seat_number" id="seat_number_9" value="9">
+            Seat 9
+          </button><br/>
         </form>
         { game_is_active &&
           <div>
