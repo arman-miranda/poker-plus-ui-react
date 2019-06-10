@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom'
 import { getDataFromServer, requestPOSTTo } from '../../shared/request_handlers'
 import GamesTable from './games_table'
 import Modal from "./modal";
+import Cable from 'actioncable';
 
 class Games extends React.Component {
   constructor(props) {
@@ -17,6 +18,29 @@ class Games extends React.Component {
 
   componentDidMount() {
     this.getAllGamesFromServer()
+    this.createSocket()
+  }
+
+  componentWillUnmount() {
+    this.app.unsubscribe()
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+
+    this.app = cable.subscriptions.create(
+      {
+        channel: 'LobbyChannel'
+      },
+      {
+        connected: () => {},
+        received: (data) => {
+          if (data.message === "LobbyUpdated") {
+            this.getAllGamesFromServer()
+          }
+        },
+      }
+    )
   }
 
   getAllGamesFromServer() {
