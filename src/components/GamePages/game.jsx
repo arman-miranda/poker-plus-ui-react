@@ -230,8 +230,18 @@ class Game extends React.Component {
   }
 
   handleRoundEnd(round) {
-    let cardType = ["flop","turn","river"][round-1]
-    this.setState({ community_card_modal: cardType })
+    if (round <= 4) {
+      let cardType = ["flop","turn","river"][round-1]
+      this.setState({ community_card_modal: cardType })
+      if (this.props.currentUser.is_premium) { this.incrementRound(round+1) }
+    }
+  }
+
+  incrementRound(round) {
+    requestPUTTo(
+      `http://localhost:3000/games/${this.state.id}/increment_round`,
+      {round: round}
+    )
   }
 
   initializeGameCard(game_card_id) {
