@@ -284,10 +284,6 @@ class Game extends React.Component {
       return <Redirect to={showCardSelectionScreen} />
     }
 
-    if(this.readyForRoundStart()) {
-      alert('Round has started')
-    }
-
     return (
       <div>
         <h4>Game ID: {params.id}</h4>
