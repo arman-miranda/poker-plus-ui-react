@@ -426,7 +426,8 @@ class Game extends React.Component {
       game_is_active,
       showGameWaitinglist,
       showPlayerWaitingList,
-      showCardSelectionScreen
+      showCardSelectionScreen,
+      game_name
     } = this.state
     const { params } = this.props.match
 
@@ -463,8 +464,10 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
-        <h4>Game ID: {params.id}</h4>
-        <h4>Dealer: { dealer_name }</h4>
+        <h4>
+          Game #{params.id}: {game_name} <br />
+          Dealer: {dealer_name}
+        </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
             <button name="start_game"
@@ -474,7 +477,7 @@ class Game extends React.Component {
             <button name="waitinglist"
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
-            </button>
+            </button><br />
             <CommunityCardModal displayModal={this.state.community_card_modal !== ""}>
               <form id="communityCardModal" method="post" className={this.state.community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
                 <h4>Set {this.state.community_card_modal}</h4>
@@ -498,8 +501,9 @@ class Game extends React.Component {
                 <input type="submit" value="Close" onClick={this.handleCommunityCardModalClose.bind(this)} />
               </form>
             </CommunityCardModal>
+            <br />
           </div>
-        }<br />
+        }
         <div id="communityCards" />
         <form>
           <button name="seat_number" id="seat_number_1" value="1">
