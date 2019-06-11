@@ -232,7 +232,7 @@ class Game extends React.Component {
     if (round <= 4) {
       let cardType = ["flop","turn","river"][round-1]
       this.setState({ community_card_modal: cardType })
-      if (this.props.currentUser.is_premium) { this.incrementRound(round+1) }
+      if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     }
   }
 
@@ -366,7 +366,7 @@ class Game extends React.Component {
         }
         <h4>Game ID: {params.id}</h4>
         <h4>Dealer: { dealer_name }</h4>
-        { this.props.currentUser.is_premium &&
+        { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
             <button name="start_game"
               onClick={this.handleStartGame.bind(this)}>
