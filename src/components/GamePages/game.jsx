@@ -25,7 +25,6 @@ class Game extends React.Component {
       players: [],
       community_card_modal: "",
       joining_players: [],
-      players: [],
       current_logs: ""
     }
   }
@@ -79,15 +78,23 @@ class Game extends React.Component {
           if (data.new_players) {
             this.setState({
               players: data.new_players
-            }, () => this.updateSeatNames())
+            })
           } else if (data.action_type === 'game_start') {
             this.setState({
               ...data
-            }, () => {this.handleRoundStates()})
+            }, () => {
+              if(this.readyForRoundStart()) {
+                this.handleRoundStates()
+              }
+            })
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
-            }, () => { this.handleRoundStates() })
+            }, () => {
+              if(this.readyForRoundStart()) {
+                this.handleRoundStates()
+              }
+            })
           } else if (data.alert_type === 'turn_action') {
             this.setState({
               alert_props: {...data}
@@ -172,7 +179,7 @@ class Game extends React.Component {
 
   updateSeatNames() {
     this.clearSeatNames()
-    const { players, big_blind } = this.state
+    const { players } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
