@@ -79,14 +79,10 @@ class Game extends React.Component {
           if (data.new_players) {
             this.setState({
               players: data.new_players
-            })
+            }, () => this.updateSeatNames())
           } else if (data.action_type === 'game_start') {
             this.setState({
               ...data
-            }, () => {
-              if(this.readyForRoundStart()) {
-                this.handleRoundStates()
-              }
             })
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
@@ -152,8 +148,10 @@ class Game extends React.Component {
 
   destroyCurrentComCards() {
     var comCardDiv = document.getElementById("communityCards")
-    while (comCardDiv.firstChild) {
-      comCardDiv.removeChild(comCardDiv.firstChild)
+    if(comCardDiv != null) {
+      while (comCardDiv.firstChild) {
+        comCardDiv.removeChild(comCardDiv.firstChild)
+      }
     }
   }
 
@@ -477,10 +475,18 @@ class Game extends React.Component {
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
-            <button name="start_game"
-              onClick={this.handleStartGame.bind(this)}>
-              Start Game
-            </button>
+            {!game_is_active &&
+             <button name="start_game"
+               onClick={this.handleStartGame.bind(this)}>
+               Start Game
+             </button>
+            }
+            {(game_is_active && this.readyForRoundStart()) &&
+             <button name="round_start"
+               onClick={this.handleRoundStates.bind(this)}>
+               Round Start
+             </button>
+            }
             <button name="waitinglist"
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
