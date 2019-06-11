@@ -119,7 +119,8 @@ class Game extends React.Component {
   willUpdateStateData(data) {
     return data.joining_players ||
            data.showCardSelectionScreen ||
-           data.button
+           data.button ||
+           data.action_type === 'new_round_start'
   }
 
   handleCurrentSeatAssignments() {
@@ -277,6 +278,12 @@ class Game extends React.Component {
         currently_playing: currently_playing,
         joining_players: joining_players
       })
+    } else if (!big_blind && !small_blind) {
+      requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
+        player_action: null,
+        currently_playing: currently_playing,
+        joining_players: joining_players
+      })
     }
   }
 
@@ -379,7 +386,12 @@ class Game extends React.Component {
     requestPUTTo(url, {"cards": body})
 
     this.nullifyCommunityCards()
-    this.setState({ community_card_modal: "" })
+    this.setState({
+      community_card_modal: "",
+      last_playing_player: this.state.button
+    }, () => {
+      this.handleRoundStates()
+    })
   }
 
   handleCommunityCardSelectChange(e) {
