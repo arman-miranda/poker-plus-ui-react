@@ -22,10 +22,11 @@ class Game extends React.Component {
       dealer_name: null,
       game_is_active: false,
       game_name: null,
-      players: [],
       community_card_modal: "",
       joining_players: [],
-      current_logs: ""
+      players: [],
+      current_logs: "",
+      communityCards: {}
     }
   }
 
@@ -52,8 +53,8 @@ class Game extends React.Component {
     })
 
     this.handleCurrentSeatAssignments()
+    this.getCurrentComCards()
     this.createSocket()
-    this.nullifyCommunityCards()
   }
 
   componentWillUnmount() {
@@ -101,6 +102,8 @@ class Game extends React.Component {
             })
           } else if (data.event === 'round_ended') {
             this.handleRoundEnd(data.round)
+          } else if (data.event === 'community_card_update') {
+            this.getCurrentComCards()
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
@@ -134,6 +137,73 @@ class Game extends React.Component {
         this.setState({...results}, () => this.updateSeatNames())
       }
     })
+  }
+
+  getCurrentComCards() {
+    var game = getDataFromServer(
+      `http://localhost:3000/games/${this.props.match.params.id}/`
+    ).then(results => {
+      if (results.community_cards !== null) {
+        this.setState({ current_community_cards: [...results.community_cards.cards] })
+        this.handleCurrentComCards()
+      }
+    })
+  }
+
+  destroyCurrentComCards() {
+    var comCardDiv = document.getElementById("communityCards")
+    while (comCardDiv.firstChild) {
+      comCardDiv.removeChild(comCardDiv.firstChild)
+    }
+  }
+
+  handleCurrentComCards() {
+    let cardArray = this.state.current_community_cards || []
+    let comCardDiv = document.getElementById("communityCards")
+
+    this.destroyCurrentComCards()
+
+    if (cardArray.length >= 3) {
+      let flopDiv = document.createElement("div")
+      flopDiv.setAttribute("class", "flopDiv")
+      flopDiv.textContent = "Flop:"
+      comCardDiv.append(flopDiv)
+
+      let flop = cardArray.slice(0,3)
+
+      flop.map(card=>{
+        let flopCard = document.createElement("a")
+        flopCard.setAttribute("class", "flopCard")
+        flopCard.textContent = card.number + " of " + card.suit
+
+        flopDiv.append(flopCard)
+      })
+    }
+    if (cardArray.length >=4) {
+      let turnDiv = document.createElement("div")
+      turnDiv.setAttribute("class", "turnDiv")
+      turnDiv.textContent = "Turn:"
+      comCardDiv.append(turnDiv)
+
+      let turnCard = document.createElement("a")
+      turnCard.setAttribute("class", "turnCard")
+      turnCard.textContent = cardArray[3].number + " of " + cardArray[3].suit
+
+      turnDiv.append(turnCard)
+    }
+    if (cardArray.length === 5) {
+      let riverDiv = document.createElement("div")
+      riverDiv.setAttribute("class", "riverDiv")
+      riverDiv.textContent = "River:"
+      comCardDiv.append(riverDiv)
+
+      let riverCard = document.createElement("a")
+      riverCard.setAttribute("class", "riverCard")
+      riverCard.textContent = cardArray[4].number + " of " + cardArray[4].suit
+
+      riverDiv.append(riverCard)
+    }
+    comCardDiv.append(document.createElement("br"))
   }
 
   checkIfExistingPlayer() {
@@ -224,9 +294,38 @@ class Game extends React.Component {
     let span = document.createElement('span')
     span.setAttribute("class", "seatSpan")
     span.textContent = ` ${player.player_name}`
+
     seat_position.parentNode
       .insertBefore(span, seat_position.nextSibling)
     seat_position.setAttribute("disabled","disabled")
+
+    if (player.player_name === this.props.currentUser.username) {
+      this.showOwnCards(player)
+    }
+  }
+
+  showOwnCards(player) {
+    let cardsSpanId = `${player.seat_number}_cardsSpan`
+    if ( document.getElementById(cardsSpanId) === null ) {
+      var player_game = getDataFromServer(
+        `http://localhost:3000/games/${this.state.id}/player_games/${player.player_game_id}`
+      )
+
+      let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
+      let seatSpan = seatPosition.nextSibling
+
+      let cardsSpan = document.createElement('span')
+      cardsSpan.setAttribute("id", cardsSpanId)
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+
+      player_game.then(result => result.cards.map( (card, i) =>{
+          let cardSpan = document.createElement("a")
+          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+          cardSpan.textContent = card.number + " of " + card.suit
+          cardsSpan.append(cardSpan)
+        })
+      )
+    }
   }
 
   handleWaitinglistRedirection(e) {
@@ -239,7 +338,7 @@ class Game extends React.Component {
     if (round <= 4) {
       let cardType = ["flop","turn","river"][round-1]
       this.setState({ community_card_modal: cardType })
-      if (this.props.currentUser.is_premium) { this.incrementRound(round+1) }
+      if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     }
   }
 
@@ -334,7 +433,8 @@ class Game extends React.Component {
       game_is_active,
       showGameWaitinglist,
       showPlayerWaitingList,
-      showCardSelectionScreen
+      showCardSelectionScreen,
+      game_name
     } = this.state
     const { params } = this.props.match
 
@@ -371,9 +471,11 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
-        <h4>Game ID: {params.id}</h4>
-        <h4>Dealer: { dealer_name }</h4>
-        { this.props.currentUser.is_premium &&
+        <h4>
+          Game #{params.id}: {game_name} <br />
+          Dealer: {dealer_name}
+        </h4>
+        { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
             <button name="start_game"
               onClick={this.handleStartGame.bind(this)}>
@@ -382,7 +484,7 @@ class Game extends React.Component {
             <button name="waitinglist"
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
-            </button>
+            </button><br />
             <CommunityCardModal displayModal={this.state.community_card_modal !== ""}>
               <form id="communityCardModal" method="post" className={this.state.community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
                 <h4>Set {this.state.community_card_modal}</h4>
@@ -406,8 +508,10 @@ class Game extends React.Component {
                 <input type="submit" value="Close" onClick={this.handleCommunityCardModalClose.bind(this)} />
               </form>
             </CommunityCardModal>
+            <br />
           </div>
-        }<br />
+        }
+        <div id="communityCards" />
         <form>
           <button name="seat_number" id="seat_number_1" value="1">
             Seat 1
