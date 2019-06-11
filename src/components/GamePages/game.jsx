@@ -26,7 +26,8 @@ class Game extends React.Component {
       community_card_modal: "",
       joining_players: [],
       players: [],
-      current_logs: ""
+      current_logs: "",
+      communityCards: {}
     }
   }
 
@@ -53,9 +54,8 @@ class Game extends React.Component {
     })
 
     this.handleCurrentSeatAssignments()
-    this.handleCurrentComCards()
+    this.getCurrentComCards()
     this.createSocket()
-    this.nullifyCommunityCards()
   }
 
   componentWillUnmount() {
@@ -95,6 +95,8 @@ class Game extends React.Component {
             })
           } else if (data.event === 'round_ended') {
             this.handleRoundEnd(data.round)
+          } else if (data.event === 'community_card_update') {
+            this.getCurrentComCards()
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
@@ -130,10 +132,29 @@ class Game extends React.Component {
     })
   }
 
+  getCurrentComCards() {
+    var game = getDataFromServer(
+      `http://localhost:3000/games/${this.props.match.params.id}/`
+    ).then(results => {
+      if (results.community_cards !== null) {
+        this.setState({ current_community_cards: [...results.community_cards.cards] })
+        this.handleCurrentComCards()
+      }
+    })
+  }
+
+  destroyCurrentComCards() {
+    var comCardDiv = document.getElementById("communityCards")
+    while (comCardDiv.firstChild) {
+      comCardDiv.removeChild(comCardDiv.firstChild)
+    }
+  }
+
   handleCurrentComCards() {
-    // TODO: GET ACTUAL CARDS FROM API
-    let cardArray = [{suit: "diamond",number: "1"}, {suit: "diamond",number: "2"}, {suit: "diamond",number: "3"}, {suit: "diamond",number: "4"}, {suit: "diamond",number: "5"}]
+    let cardArray = this.state.current_community_cards || []
     let comCardDiv = document.getElementById("communityCards")
+
+    this.destroyCurrentComCards()
 
     if (cardArray.length >= 3) {
       let flopDiv = document.createElement("div")
@@ -277,24 +298,27 @@ class Game extends React.Component {
   }
 
   showOwnCards(player) {
-    var player_game = getDataFromServer(
-      `http://localhost:3000/games/${this.state.id}/player_games/${player.player_game_id}`
-    )
+    let cardsSpanId = `${player.seat_number}_cardsSpan`
+    if ( document.getElementById(cardsSpanId) === null ) {
+      var player_game = getDataFromServer(
+        `http://localhost:3000/games/${this.state.id}/player_games/${player.player_game_id}`
+      )
 
-    let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
-    let seatSpan = seatPosition.nextSibling
+      let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
+      let seatSpan = seatPosition.nextSibling
 
-    let cardsSpan = document.createElement('span')
-    cardsSpan.setAttribute("class", "cardsSpan")
-    seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+      let cardsSpan = document.createElement('span')
+      cardsSpan.setAttribute("id", cardsSpanId)
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
 
-    player_game.then(result => result.cards.map( (card, i) =>{
-        let cardSpan = document.createElement("a")
-        cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-        cardSpan.textContent = card.number + " of " + card.suit
-        cardsSpan.append(cardSpan)
-      })
-    )
+      player_game.then(result => result.cards.map( (card, i) =>{
+          let cardSpan = document.createElement("a")
+          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+          cardSpan.textContent = card.number + " of " + card.suit
+          cardsSpan.append(cardSpan)
+        })
+      )
+    }
   }
 
   handleWaitinglistRedirection(e) {
