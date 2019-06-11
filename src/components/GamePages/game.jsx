@@ -80,14 +80,10 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
-          } else if (this.willUpdateStateData(data)) {
-            this.setState({
-              ...data
-            })
           } else if (data.action_type === 'game_start') {
             this.setState({
               ...data
-            })
+            }, () => {this.handleRoundStates()})
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
@@ -98,6 +94,10 @@ class Game extends React.Component {
             })
           } else if (data.event === 'round_ended') {
             this.handleRoundEnd(data.round)
+          } else if (this.willUpdateStateData(data)) {
+            this.setState({
+              ...data
+            })
           } else {
             this.props.handleAlerts(data)
           }
@@ -177,27 +177,26 @@ class Game extends React.Component {
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
-
-    if (this.readyForRoundStart() && big_blind) {
-      this.handleRoundStates()
-    }
   }
 
   handleRoundStates() {
+    const { currentUser } = this.props
     const {
       id,
+      dealer_id,
       currently_playing,
       big_blind,
       small_blind,
       joining_players } = this.state
 
-    if (currently_playing === small_blind) {
+    console.log(dealer_id === currentUser.id)
+    if (currently_playing === small_blind && dealer_id === currentUser.id) {
       requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'small_blind',
         currently_playing: currently_playing,
         joining_players: joining_players
       })
-    } else if (currently_playing === big_blind) {
+    } else if (currently_playing === big_blind && dealer_id === currentUser.id) {
       requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'big_blind',
         currently_playing: currently_playing,
