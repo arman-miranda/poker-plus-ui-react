@@ -338,10 +338,12 @@ class Game extends React.Component {
   }
 
   handleRoundEnd(round) {
-    if (round <= 4) {
+    if (round < 4) {
       let cardType = ["flop","turn","river"][round-1]
       this.setState({ community_card_modal: cardType })
       if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
+    } else {
+      alert("Game Ended")
     }
   }
 
