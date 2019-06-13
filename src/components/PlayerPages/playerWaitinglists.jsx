@@ -23,7 +23,7 @@ class PlayerWaitinglists extends React.Component {
 
   fetchWatingLists() {
     const data = getDataFromServer(
-      `https://poker-test-api.heroku.com/players/${this.state.player_id}/waitinglists`
+      `https://poker-plus-api.heroku.com/players/${this.state.player_id}/waitinglists`
     )
     data.then(results => {
       if (results.error) {
@@ -35,7 +35,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-test-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('wss://poker-plus-api.herokuapp.com/cable')
     let playerId = this.props.match.params.id
 
     this.app = cable.subscriptions.create(
@@ -81,7 +81,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   handleClick(e){
-    deleteDataFromServer(`https://poker-test-api.heroku.com/waitinglists/${e.id}`);
+    deleteDataFromServer(`https://poker-plus-api.heroku.com/waitinglists/${e.id}`);
   }
 
   handleGamesLobbyRedirection() {

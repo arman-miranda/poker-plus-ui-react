@@ -26,7 +26,7 @@ class Games extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-test-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('wss://poker-plus-api.herokuapp.com/cable')
 
     this.app = cable.subscriptions.create(
       {
@@ -44,7 +44,7 @@ class Games extends React.Component {
   }
 
   getAllGamesFromServer() {
-    const data = getDataFromServer('https://poker-test-api.heroku.com/games')
+    const data = getDataFromServer('https://poker-plus-api.heroku.com/games')
     data.then(results => {
       if (results.error) {
         this.props.handleUserLogout()
@@ -66,7 +66,7 @@ class Games extends React.Component {
 
   onModalSubmit(e) {
     e.preventDefault()
-    var url = `https://poker-test-api.heroku.com/games/`
+    var url = `https://poker-plus-api.heroku.com/games/`
     var body = {
       name: this.state.name
     }

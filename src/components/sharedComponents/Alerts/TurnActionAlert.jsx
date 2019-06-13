@@ -16,7 +16,7 @@ class TurnActionAlert extends React.Component {
 
   handleSelectedAction(action) {
     const { game_id, currently_playing, joining_players } = this.props
-    requestPOSTTo(`https://poker-test-api.heroku.com/games/${game_id}/player_rounds`, {
+    requestPOSTTo(`https://poker-plus-api.heroku.com/games/${game_id}/player_rounds`, {
       player_action: action,
       currently_playing: currently_playing,
       joining_players: joining_players
