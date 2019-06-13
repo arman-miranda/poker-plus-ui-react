@@ -87,10 +87,6 @@ class Game extends React.Component {
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
-            }, () => {
-              if(this.readyForRoundStart()) {
-                this.handleRoundStates()
-              }
             })
           } else if (data.alert_type === 'turn_action') {
             this.setState({
@@ -99,7 +95,9 @@ class Game extends React.Component {
           } else if (data.event === 'round_ended') {
             this.handleRoundEnd(data.round)
           } else if (data.event === 'community_card_update') {
-            this.getCurrentComCards()
+            if(data.community_cards.length > 0) {
+              this.getCurrentComCards()
+            }
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
