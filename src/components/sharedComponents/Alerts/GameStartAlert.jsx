@@ -18,7 +18,7 @@ class GameStartAlert extends React.Component {
   handleJoining() {
     const {game_id, player_game_id} = this.state
     requestPUTTo(
-      `https://poker-plus-api.heroku.com/games/${game_id}/player_games/${player_game_id}`,
+      `https://poker-plus-api.herokuapp.com/games/${game_id}/player_games/${player_game_id}`,
       { player_is_active: true }
     ).then(this.props.handleDismissAlert())
   }
@@ -26,7 +26,7 @@ class GameStartAlert extends React.Component {
   handlePassing() {
     const { game_id, player_game_id } = this.state
     requestPUTTo(
-      `https://poker-plus-api.heroku.com/games/${game_id}/player_games/${player_game_id}`,
+      `https://poker-plus-api.herokuapp.com/games/${game_id}/player_games/${player_game_id}`,
       { player_is_active: false }
     ).then(this.props.handleDismissAlert())
   }

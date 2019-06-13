@@ -21,7 +21,7 @@ class GameWaitinglists extends React.Component {
 
   fetchWatingLists() {
     const data = getDataFromServer(
-      `https://poker-plus-api.heroku.com/games/${this.state.game_id}/waitinglists`
+      `https://poker-plus-api.herokuapp.com/games/${this.state.game_id}/waitinglists`
     )
     data.then(results => {
       if (results.error) {
@@ -71,14 +71,14 @@ class GameWaitinglists extends React.Component {
 
   handleAcceptClick(waitinglist, e){
     if(window.confirm("This action will add this user to the game.")){
-      requestPUTTo(`https://poker-plus-api.heroku.com/waitinglists/${waitinglist.id}`, {
+      requestPUTTo(`https://poker-plus-api.herokuapp.com/waitinglists/${waitinglist.id}`, {
         player_id: waitinglist.player.id
       })
     }
   }
 
   handleDenyClick(e){
-    deleteDataFromServer(`https://poker-plus-api.heroku.com/waitinglists/${e.id}`).then(
+    deleteDataFromServer(`https://poker-plus-api.herokuapp.com/waitinglists/${e.id}`).then(
       window.location.reload()
     )
   }

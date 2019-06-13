@@ -23,7 +23,7 @@ class PlayerWaitinglists extends React.Component {
 
   fetchWatingLists() {
     const data = getDataFromServer(
-      `https://poker-plus-api.heroku.com/players/${this.state.player_id}/waitinglists`
+      `https://poker-plus-api.herokuapp.com/players/${this.state.player_id}/waitinglists`
     )
     data.then(results => {
       if (results.error) {
@@ -81,7 +81,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   handleClick(e){
-    deleteDataFromServer(`https://poker-plus-api.heroku.com/waitinglists/${e.id}`);
+    deleteDataFromServer(`https://poker-plus-api.herokuapp.com/waitinglists/${e.id}`);
   }
 
   handleGamesLobbyRedirection() {
