@@ -436,6 +436,14 @@ class Game extends React.Component {
     });
   }
 
+  gameIncludesCurrentUser() {
+    const current_user_id = this.props.currentUser.id
+    const joining_player_ids = this.state.joining_players.map(
+      player => player.player_id)
+
+    return joining_player_ids.includes(current_user_id)
+  }
+
   render() {
     const {
       alert_props,
@@ -465,7 +473,7 @@ class Game extends React.Component {
 
     }
 
-    if(showCardSelectionScreen) {
+    if(showCardSelectionScreen && this.gameIncludesCurrentUser()) {
       return <Redirect to={showCardSelectionScreen} />
     }
 
