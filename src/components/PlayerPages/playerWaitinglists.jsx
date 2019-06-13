@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
   deleteDataFromServer } from '../../shared/request_handlers'
+import Cable from 'actioncable';
 
 class PlayerWaitinglists extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ class PlayerWaitinglists extends React.Component {
 
   componentDidMount() {
     this.fetchWatingLists()
+    this.createSocket()
   }
 
   fetchWatingLists() {
@@ -30,6 +32,26 @@ class PlayerWaitinglists extends React.Component {
         this.setState({ waitinglists: results })
       }
     })
+  }
+
+  createSocket() {
+    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let playerId = this.props.match.params.id
+
+    this.app = cable.subscriptions.create(
+      {
+        channel: 'PlayerWaitinglistChannel',
+        player_id: playerId
+      },
+      {
+        connected: () => {},
+        received: (data) => {
+          if (data.message === "PlayerWaitinglistUpdated") {
+            this.fetchWatingLists()
+          }
+        },
+      }
+    )
   }
 
   renderTableHeaders() {
