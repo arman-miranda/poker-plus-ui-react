@@ -87,6 +87,10 @@ class Game extends React.Component {
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
+            }, () => {
+              if(this.state.dealer_id === this.props.currentUser.id) {
+                this.handleRoundStates()
+              }
             })
           } else if (data.alert_type === 'turn_action') {
             this.setState({
@@ -263,7 +267,6 @@ class Game extends React.Component {
       small_blind,
       joining_players } = this.state
 
-    console.log(dealer_id === currentUser.id)
     if (currently_playing === small_blind && dealer_id === currentUser.id) {
       requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'small_blind',
