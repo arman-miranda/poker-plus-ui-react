@@ -88,7 +88,7 @@ class Game extends React.Component {
             this.setState({
               ...data
             }, () => {
-              if(this.state.dealer_id === this.props.currentUser.id) {
+              if(this.state.dealer_id === this.props.currentUser.id && this.state.big_blind) {
                 this.handleRoundStates()
               }
             })
