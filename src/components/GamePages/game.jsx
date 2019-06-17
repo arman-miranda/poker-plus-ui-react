@@ -256,12 +256,13 @@ class Game extends React.Component {
   updateSeatNames() {
     this.clearSeatNames()
     const { players } = this.state
+    const { game_is_active } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
 
-    if (this.readyForRoundStart()) {
+    if (game_is_active) {
       this.handleNotPlaying()
     }
   }
@@ -522,6 +523,10 @@ class Game extends React.Component {
 
     if(showCardSelectionScreen && this.gameIncludesCurrentUser()) {
       return <Redirect to={showCardSelectionScreen} />
+    }
+
+    if(showCardSelectionScreen && !this.gameIncludesCurrentUser()) {
+      window.location.reload()
     }
 
     if(showGameLobby) {
