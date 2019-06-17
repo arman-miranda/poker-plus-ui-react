@@ -377,11 +377,6 @@ class Game extends React.Component {
     this.setState({ community_card_modal: e.target.value })
   }
 
-  handleCommunityCardModalClose() {
-    this.setState({ community_card_modal: "" })
-    this.nullifyCommunityCards()
-  }
-
   handleCommunityCardModalSubmit(e) {
     e.preventDefault()
     let body = []
@@ -591,7 +586,6 @@ class Game extends React.Component {
                   })
                 }
                 <input type="submit" value={`Set ${this.state.community_card_modal}`} /><br />
-                <input type="submit" value="Close" onClick={this.handleCommunityCardModalClose.bind(this)} />
               </form>
             </CommunityCardModal>
             <br />
