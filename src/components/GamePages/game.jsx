@@ -9,6 +9,7 @@ import '../../stylesheets/game.css';
 import Cable from 'actioncable'
 import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
+import { parseCards } from '../../shared/card_generator.js';
 
 class Game extends React.Component {
   constructor(props) {
@@ -53,6 +54,7 @@ class Game extends React.Component {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
 
+
     this.handleCurrentSeatAssignments()
     this.getCurrentComCards()
     this.createSocket()
@@ -88,6 +90,10 @@ class Game extends React.Component {
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
+            }, () => {
+              if(this.state.dealer_id === this.props.currentUser.id) {
+                this.handleRoundStates()
+              }
             })
           } else if (data.alert_type === 'turn_action') {
             this.setState({
@@ -172,9 +178,10 @@ class Game extends React.Component {
       flop.map(card=>{
         let flopCard = document.createElement("a")
         flopCard.setAttribute("class", "flopCard")
-        flopCard.textContent = card.number + " of " + card.suit
+        flopCard.textContent = parseCards(card.number, card.suit)
 
         flopDiv.append(flopCard)
+        comCardDiv.append(document.createElement("br"))
       })
     }
     if (cardArray.length >=4) {
@@ -185,9 +192,10 @@ class Game extends React.Component {
 
       let turnCard = document.createElement("a")
       turnCard.setAttribute("class", "turnCard")
-      turnCard.textContent = cardArray[3].number + " of " + cardArray[3].suit
+      turnCard.textContent = parseCards(cardArray[3].number, cardArray[3].suit)
 
       turnDiv.append(turnCard)
+      comCardDiv.append(document.createElement("br"))
     }
     if (cardArray.length === 5) {
       let riverDiv = document.createElement("div")
@@ -197,11 +205,11 @@ class Game extends React.Component {
 
       let riverCard = document.createElement("a")
       riverCard.setAttribute("class", "riverCard")
-      riverCard.textContent = cardArray[4].number + " of " + cardArray[4].suit
+      riverCard.textContent = parseCards(cardArray[4].number, cardArray[4].suit)
 
       riverDiv.append(riverCard)
+      comCardDiv.append(document.createElement("br"))
     }
-    comCardDiv.append(document.createElement("br"))
   }
 
   checkIfExistingPlayer() {
@@ -268,7 +276,6 @@ class Game extends React.Component {
       small_blind,
       joining_players } = this.state
 
-    console.log(dealer_id === currentUser.id)
     if (currently_playing === small_blind && dealer_id === currentUser.id) {
       requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
         player_action: 'small_blind',
@@ -329,7 +336,7 @@ class Game extends React.Component {
       player_game.then(result => result.cards.map( (card, i) =>{
           let cardSpan = document.createElement("a")
           cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = card.number + " of " + card.suit
+          cardSpan.textContent = parseCards(card.number, card.suit)
           cardsSpan.append(cardSpan)
         })
       )
@@ -359,8 +366,8 @@ class Game extends React.Component {
     )
   }
 
-  initializeGameCard(game_card_id) {
-    this.setState({ game_card_id })
+  initializeGameCard(community_card_id) {
+    this.setState({ community_card_id })
   }
 
   handleSetCommunityCards(e){
@@ -387,7 +394,7 @@ class Game extends React.Component {
       })
     })
 
-    let url = `http://localhost:3000/games/${this.state.id}/game_card/${this.state.game_card_id}`
+    let url = `http://localhost:3000/games/${this.state.id}/community_cards/${this.state.community_card_id}`
     requestPUTTo(url, {"cards": body})
 
     this.nullifyCommunityCards()
@@ -426,7 +433,7 @@ class Game extends React.Component {
             }
           ).then(result => {
             console.log(result)
-            this.initializeGameCard(result.game_card.id)
+            this.initializeGameCard(result.community_card_id)
           })
         }
       }, 10000)
@@ -475,6 +482,14 @@ class Game extends React.Component {
     });
   }
 
+  gameIncludesCurrentUser() {
+    const current_user_id = this.props.currentUser.id
+    const joining_player_ids = this.state.joining_players.map(
+      player => player.player_id)
+
+    return joining_player_ids.includes(current_user_id)
+  }
+
   render() {
     const {
       alert_props,
@@ -505,7 +520,7 @@ class Game extends React.Component {
 
     }
 
-    if(showCardSelectionScreen) {
+    if(showCardSelectionScreen && this.gameIncludesCurrentUser()) {
       return <Redirect to={showCardSelectionScreen} />
     }
 
