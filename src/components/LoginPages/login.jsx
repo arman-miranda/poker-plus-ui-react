@@ -35,6 +35,11 @@ class Login extends React.Component {
   }
 
   handleResponse(response) {
+    if (response.status === 401) {
+      if (window.confirm('Invalid Username or Password')) {
+        window.location.reload()
+      }
+    }
     if (response.status === 200) {
       response.json().then( data => {
         localStorage.setItem('currentUser', JSON.stringify(data))
