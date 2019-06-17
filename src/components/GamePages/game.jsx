@@ -9,6 +9,7 @@ import '../../stylesheets/game.css';
 import Cable from 'actioncable'
 import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
+import { parseCards } from '../../shared/card_generator.js';
 
 class Game extends React.Component {
   constructor(props) {
@@ -51,6 +52,7 @@ class Game extends React.Component {
     document.querySelectorAll('form button').forEach((button) => {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
+
 
     this.handleCurrentSeatAssignments()
     this.getCurrentComCards()
@@ -175,7 +177,7 @@ class Game extends React.Component {
       flop.map(card=>{
         let flopCard = document.createElement("a")
         flopCard.setAttribute("class", "flopCard")
-        flopCard.textContent = card.number + " of " + card.suit
+        flopCard.textContent = parseCards(card.number, card.suit)
 
         flopDiv.append(flopCard)
       })
@@ -188,7 +190,7 @@ class Game extends React.Component {
 
       let turnCard = document.createElement("a")
       turnCard.setAttribute("class", "turnCard")
-      turnCard.textContent = cardArray[3].number + " of " + cardArray[3].suit
+      turnCard.textContent = parseCards(cardArray[3].number, cardArray[3].suit)
 
       turnDiv.append(turnCard)
     }
@@ -200,7 +202,7 @@ class Game extends React.Component {
 
       let riverCard = document.createElement("a")
       riverCard.setAttribute("class", "riverCard")
-      riverCard.textContent = cardArray[4].number + " of " + cardArray[4].suit
+      riverCard.textContent = parseCards(cardArray[4].number, cardArray[4].suit)
 
       riverDiv.append(riverCard)
     }
@@ -327,7 +329,7 @@ class Game extends React.Component {
       player_game.then(result => result.cards.map( (card, i) =>{
           let cardSpan = document.createElement("a")
           cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = card.number + " of " + card.suit
+          cardSpan.textContent = parseCards(card.number, card.suit)
           cardsSpan.append(cardSpan)
         })
       )
