@@ -180,6 +180,7 @@ class Game extends React.Component {
         flopCard.textContent = parseCards(card.number, card.suit)
 
         flopDiv.append(flopCard)
+        comCardDiv.append(document.createElement("br"))
       })
     }
     if (cardArray.length >=4) {
@@ -193,6 +194,7 @@ class Game extends React.Component {
       turnCard.textContent = parseCards(cardArray[3].number, cardArray[3].suit)
 
       turnDiv.append(turnCard)
+      comCardDiv.append(document.createElement("br"))
     }
     if (cardArray.length === 5) {
       let riverDiv = document.createElement("div")
@@ -205,8 +207,8 @@ class Game extends React.Component {
       riverCard.textContent = parseCards(cardArray[4].number, cardArray[4].suit)
 
       riverDiv.append(riverCard)
+      comCardDiv.append(document.createElement("br"))
     }
-    comCardDiv.append(document.createElement("br"))
   }
 
   checkIfExistingPlayer() {
@@ -359,8 +361,8 @@ class Game extends React.Component {
     )
   }
 
-  initializeGameCard(game_card_id) {
-    this.setState({ game_card_id })
+  initializeGameCard(community_card_id) {
+    this.setState({ community_card_id })
   }
 
   handleSetCommunityCards(e){
@@ -387,7 +389,7 @@ class Game extends React.Component {
       })
     })
 
-    let url = `http://localhost:3000/games/${this.state.id}/game_card/${this.state.game_card_id}`
+    let url = `http://localhost:3000/games/${this.state.id}/community_cards/${this.state.community_card_id}`
     requestPUTTo(url, {"cards": body})
 
     this.nullifyCommunityCards()
@@ -426,7 +428,7 @@ class Game extends React.Component {
             }
           ).then(result => {
             console.log(result)
-            this.initializeGameCard(result.game_card.id)
+            this.initializeGameCard(result.community_card_id)
           })
         }
       }, 10000)
