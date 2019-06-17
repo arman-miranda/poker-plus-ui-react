@@ -430,7 +430,7 @@ class Game extends React.Component {
             }
           ).then(result => {
             console.log(result)
-            this.initializeGameCard(result.community_card_id)
+            this.initializeGameCard(result.game_sessions[0].id)
           })
         }
       }, 10000)
