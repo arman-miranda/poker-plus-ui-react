@@ -573,11 +573,11 @@ class Game extends React.Component {
                   cardSet.map((i) => {
                     return(
                       <div key={i}>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
                         </select>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {NUMBERS.map((number, i) => { return <option key={number + i} value={i+1}>{number}</option> })}
                         </select>
