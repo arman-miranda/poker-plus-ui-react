@@ -15,11 +15,17 @@ class TurnActionAlert extends React.Component {
   }
 
   handleSelectedAction(action) {
-    const { game_id, currently_playing, joining_players } = this.props
+    const {
+      game_id,
+      currently_playing,
+      joining_players,
+      round_just_started
+    } = this.props
     requestPOSTTo(`http://localhost:3000/games/${game_id}/player_rounds`, {
       player_action: action,
       currently_playing: currently_playing,
-      joining_players: joining_players
+      joining_players: joining_players,
+      round_just_started: round_just_started
     }).then(
       this.props.handleAlertDismissal()
     )
