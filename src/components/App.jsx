@@ -27,7 +27,7 @@ class App extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-plus-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('ws://18.179.196.103:3000/cable')
     this.app = cable.subscriptions.create({
       channel: 'UserChannel'
     }, {

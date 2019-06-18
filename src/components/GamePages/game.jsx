@@ -62,7 +62,7 @@ class Game extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('wss://poker-plus-api.herokuapp.com/cable')
+    let cable = Cable.createConsumer('ws://18.179.196.103:3000/cable')
     let gameId = this.props.match.params.id
     const playerId = this.props.currentUser.id
 
@@ -128,7 +128,7 @@ class Game extends React.Component {
   handleCurrentSeatAssignments() {
     const { params } = this.props.match
     const data = getDataFromServer(
-      `https://poker-plus-api.herokuapp.com/games/${params.id}`)
+      `games/${params.id}`)
     data.then(results => {
       if(results.error) {
         this.props.handleUserLogout()
@@ -140,7 +140,7 @@ class Game extends React.Component {
 
   getCurrentComCards() {
     var game = getDataFromServer(
-      `https://poker-plus-api.herokuapp.com/games/${this.props.match.params.id}/`
+      `games/${this.props.match.params.id}/`
     ).then(results => {
       if (results.community_cards !== null) {
         this.setState({ current_community_cards: [...results.community_cards.cards] })
@@ -241,7 +241,7 @@ class Game extends React.Component {
     const game_id = this.state.id
     const preferred_seat = e.target.value
 
-    requestPOSTTo(`https://poker-plus-api.herokuapp.com/waitinglists`, {
+    requestPOSTTo(`waitinglists`, {
       preferred_seat: preferred_seat,
       game_id: game_id,
       player_id: currentUser.id
@@ -268,19 +268,19 @@ class Game extends React.Component {
       joining_players } = this.state
 
     if (currently_playing === small_blind && dealer_id === currentUser.id) {
-      requestPOSTTo(`https://poker-plus-api.herokuapp.com/games/${id}/player_rounds`, {
+      requestPOSTTo(`games/${id}/player_rounds`, {
         player_action: 'small_blind',
         currently_playing: currently_playing,
         joining_players: joining_players
       })
     } else if (currently_playing === big_blind && dealer_id === currentUser.id) {
-      requestPOSTTo(`https://poker-plus-api.herokuapp.com/games/${id}/player_rounds`, {
+      requestPOSTTo(`games/${id}/player_rounds`, {
         player_action: 'big_blind',
         currently_playing: currently_playing,
         joining_players: joining_players
       })
     } else if (!big_blind && !small_blind) {
-      requestPOSTTo(`https://poker-plus-api.herokuapp.com/games/${id}/player_rounds`, {
+      requestPOSTTo(`games/${id}/player_rounds`, {
         player_action: null,
         currently_playing: currently_playing,
         joining_players: joining_players
@@ -314,7 +314,7 @@ class Game extends React.Component {
     let cardsSpanId = `${player.seat_number}_cardsSpan`
     if ( document.getElementById(cardsSpanId) === null ) {
       var player_game = getDataFromServer(
-        `https://poker-plus-api.herokuapp.com/games/${this.state.id}/player_games/${player.player_game_id}`
+        `games/${this.state.id}/player_games/${player.player_game_id}`
       )
 
       let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
@@ -352,7 +352,7 @@ class Game extends React.Component {
 
   incrementRound(round) {
     requestPUTTo(
-      `https://poker-plus-api.herokuapp.com/games/${this.state.id}/increment_round`,
+      `games/${this.state.id}/increment_round`,
       {round: round}
     )
   }
@@ -385,7 +385,7 @@ class Game extends React.Component {
       })
     })
 
-    let url = `https://poker-plus-api.herokuapp.com/games/${this.state.id}/game_card/${this.state.game_card_id}`
+    let url = `games/${this.state.id}/game_card/${this.state.game_card_id}`
     requestPUTTo(url, {"cards": body})
 
     this.nullifyCommunityCards()
@@ -406,17 +406,17 @@ class Game extends React.Component {
   handleStartGame() {
     if(window.confirm('Are you sure you want to start the game?')) {
       getDataFromServer(
-        `https://poker-plus-api.herokuapp.com/games/${this.state.id}/request_game_start`
+        `games/${this.state.id}/request_game_start`
       )
       setTimeout(() => {
         const {joining_players} = this.state
         if (joining_players.length < 2) {
           getDataFromServer(
-            `https://poker-plus-api.herokuapp.com/games/${this.state.id}/reset_game_start_request`
+            `games/${this.state.id}/reset_game_start_request`
           )
         } else {
           requestPUTTo(
-            `https://poker-plus-api.herokuapp.com/games/${this.state.id}`,
+            `games/${this.state.id}`,
             {
               game_is_active: true,
               change_button: true,
