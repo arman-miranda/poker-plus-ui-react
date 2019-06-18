@@ -491,6 +491,7 @@ class Game extends React.Component {
         { alert_props &&
           <TurnActionAlert
             {...this.state.alert_props}
+            round_just_started = {this.state.round_just_started}
             game_id = {this.state.id}
             currently_playing = { this.state.currently_playing }
             joining_players = {this.state.joining_players}
