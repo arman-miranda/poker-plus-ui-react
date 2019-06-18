@@ -431,7 +431,7 @@ class Game extends React.Component {
             }
           ).then(result => {
             console.log(result)
-            this.initializeGameCard(result.community_card_id)
+            this.initializeGameCard(result.game_sessions[0].id)
           })
         }
       }, 10000)
@@ -535,6 +535,7 @@ class Game extends React.Component {
         { alert_props &&
           <TurnActionAlert
             {...this.state.alert_props}
+            round_just_started = {this.state.round_just_started}
             game_id = {this.state.id}
             currently_playing = { this.state.currently_playing }
             joining_players = {this.state.joining_players}
