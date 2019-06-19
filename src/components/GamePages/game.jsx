@@ -19,6 +19,7 @@ class Game extends React.Component {
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
       showCardSelectionScreen: null,
+      showGameLobby: null,
       player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
@@ -255,10 +256,15 @@ class Game extends React.Component {
   updateSeatNames() {
     this.clearSeatNames()
     const { players } = this.state
+    const { game_is_active } = this.state
 
     players.forEach(player => {
       this.updateSeatNameFor(player)
     })
+
+    if (game_is_active) {
+      this.handleNotPlaying()
+    }
   }
 
   handleRoundStates() {
@@ -371,11 +377,6 @@ class Game extends React.Component {
     this.setState({ community_card_modal: e.target.value })
   }
 
-  handleCommunityCardModalClose() {
-    this.setState({ community_card_modal: "" })
-    this.nullifyCommunityCards()
-  }
-
   handleCommunityCardModalSubmit(e) {
     e.preventDefault()
     let body = []
@@ -437,6 +438,40 @@ class Game extends React.Component {
     }
   }
 
+  handleAutomaticFoldingAlert() {
+    if(this.state.game_is_active) {
+      if(window.confirm('This action will automatically fold your current game. Are you sure you want to continue?')) {
+        this.handleShowGameLobby()
+      }
+    }
+    else {
+      this.handleShowGameLobby()
+    }
+  }
+
+  handleShowGameLobby() {
+    this.setState({
+      showGameLobby: this.props.match.url
+    })
+  }
+
+  handleNotPlaying() {
+    const { joining_players } = this.state
+    const { game_is_active } = this.state
+
+    if(game_is_active) {
+      let seat_span = document.getElementsByClassName('seatSpan')
+      for (var i = 0; i < seat_span.length; i++ ) {
+        seat_span[i].style.color = "gray";
+      }
+
+      joining_players.forEach(joining_player => {
+        let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling
+        player_name.setAttribute("style", "color: black")
+      })
+    }
+  }
+
   readyForRoundStart() {
     const { joining_players } = this.state;
 
@@ -461,6 +496,7 @@ class Game extends React.Component {
       showGameWaitinglist,
       showPlayerWaitingList,
       showCardSelectionScreen,
+      showGameLobby,
       game_name
     } = this.state
     const { params } = this.props.match
@@ -486,6 +522,14 @@ class Game extends React.Component {
       return <Redirect to={showCardSelectionScreen} />
     }
 
+    if(showCardSelectionScreen && !this.gameIncludesCurrentUser()) {
+      window.location.reload()
+    }
+
+    if(showGameLobby) {
+      return <Redirect to='/games' />
+    }
+
     return (
       <div>
         { alert_props &&
@@ -499,9 +543,11 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
+        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
+          <span style={{float:"right"}}>{this.props.currentUser.username}</span>
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
@@ -528,11 +574,11 @@ class Game extends React.Component {
                   cardSet.map((i) => {
                     return(
                       <div key={i}>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
                         </select>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {NUMBERS.map((number, i) => { return <option key={number + i} value={i+1}>{number}</option> })}
                         </select>
@@ -541,7 +587,6 @@ class Game extends React.Component {
                   })
                 }
                 <input type="submit" value={`Set ${this.state.community_card_modal}`} /><br />
-                <input type="submit" value="Close" onClick={this.handleCommunityCardModalClose.bind(this)} />
               </form>
             </CommunityCardModal>
             <br />
@@ -549,31 +594,31 @@ class Game extends React.Component {
         }
         <div id="communityCards" />
         <form>
-          <button name="seat_number" id="seat_number_1" value="1">
+          <button name="seat_number" id="seat_number_1" value="1" disabled={game_is_active}>
             Seat 1
           </button><br/>
-          <button name="seat_number" id="seat_number_2" value="2">
+          <button name="seat_number" id="seat_number_2" value="2" disabled={game_is_active}>
             Seat 2
           </button><br/>
-          <button name="seat_number" id="seat_number_3" value="3">
+          <button name="seat_number" id="seat_number_3" value="3" disabled={game_is_active}>
             Seat 3
           </button><br/>
-          <button name="seat_number" id="seat_number_4" value="4">
+          <button name="seat_number" id="seat_number_4" value="4" disabled={game_is_active}>
             Seat 4
           </button><br/>
-          <button name="seat_number" id="seat_number_5" value="5">
+          <button name="seat_number" id="seat_number_5" value="5" disabled={game_is_active}>
             Seat 5
           </button><br/>
-          <button name="seat_number" id="seat_number_6" value="6">
+          <button name="seat_number" id="seat_number_6" value="6" disabled={game_is_active}>
             Seat 6
           </button><br/>
-          <button name="seat_number" id="seat_number_7" value="7">
+          <button name="seat_number" id="seat_number_7" value="7" disabled={game_is_active}>
             Seat 7
           </button><br/>
-          <button name="seat_number" id="seat_number_8" value="8">
+          <button name="seat_number" id="seat_number_8" value="8" disabled={game_is_active}>
             Seat 8
           </button><br/>
-          <button name="seat_number" id="seat_number_9" value="9">
+          <button name="seat_number" id="seat_number_9" value="9" disabled={game_is_active}>
             Seat 9
           </button><br/>
         </form>
