@@ -181,7 +181,6 @@ class Game extends React.Component {
         flopCard.textContent = parseCards(card.number, card.suit)
 
         flopDiv.append(flopCard)
-        comCardDiv.append(document.createElement("br"))
       })
     }
     if (cardArray.length >=4) {
@@ -195,7 +194,6 @@ class Game extends React.Component {
       turnCard.textContent = parseCards(cardArray[3].number, cardArray[3].suit)
 
       turnDiv.append(turnCard)
-      comCardDiv.append(document.createElement("br"))
     }
     if (cardArray.length === 5) {
       let riverDiv = document.createElement("div")
@@ -208,7 +206,6 @@ class Game extends React.Component {
       riverCard.textContent = parseCards(cardArray[4].number, cardArray[4].suit)
 
       riverDiv.append(riverCard)
-      comCardDiv.append(document.createElement("br"))
     }
   }
 
@@ -359,6 +356,13 @@ class Game extends React.Component {
       if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     } else {
       alert("Game Ended")
+      requestPUTTo(
+        `http://localhost:3000/games/${this.state.id}`,
+        {
+          game_is_active: false,
+          joining_players: []
+        }
+      )
     }
   }
 
@@ -431,7 +435,7 @@ class Game extends React.Component {
             }
           ).then(result => {
             console.log(result)
-            this.initializeGameCard(result.game_sessions[0].id)
+            this.initializeGameCard(result.game_sessions[0].community_card.id)
           })
         }
       }, 10000)
