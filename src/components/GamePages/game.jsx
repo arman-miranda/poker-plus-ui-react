@@ -357,7 +357,7 @@ class Game extends React.Component {
     } else {
       alert("Game Ended")
       requestPUTTo(
-        `http://localhost:3000/games/${this.state.id}`,
+        `games/${this.state.id}`,
         {
           game_is_active: false,
           joining_players: []

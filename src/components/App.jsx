@@ -43,7 +43,7 @@ class App extends React.Component {
     this.setState({
       currentUser: null
     })
-    deleteDataFromServer('localhost:3000/logout')
+    deleteDataFromServer('logout')
   }
 
   handleUserLogin() {
