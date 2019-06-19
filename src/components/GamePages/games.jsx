@@ -90,7 +90,7 @@ class Games extends React.Component {
 
     return(
       <div>
-        <Link to={`/players/${this.props.currentUser.id}/waitinglists`}>My Waitinglist</Link>
+        <Link to={`/players/${this.props.currentUser.id}/waitinglists`}>{this.props.currentUser.username}'s Waitinglist</Link>
         <form onSubmit={this.onFormSubmit.bind(this)}>
           <h4>
             GameID:
