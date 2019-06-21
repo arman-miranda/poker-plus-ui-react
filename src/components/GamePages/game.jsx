@@ -353,7 +353,7 @@ class Game extends React.Component {
     if (round < 4 && joining_players.length > 1) {
       let cardType = ["flop","turn","river"][round-1]
       this.setState({ community_card_modal: cardType })
-      if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
+      this.incrementRound(round+1) 
     } else {
       alert("Game Ended")
       requestPUTTo(
@@ -371,6 +371,8 @@ class Game extends React.Component {
       `http://localhost:3000/games/${this.state.id}/increment_round`,
       {round: round}
     )
+
+    this.setState({ round_number: round })
   }
 
   initializeGameCard(community_card_id) {
@@ -541,6 +543,7 @@ class Game extends React.Component {
             {...this.state.alert_props}
             round_just_started = {this.state.round_just_started}
             game_id = {this.state.id}
+            round_number = {this.state.round_number}
             currently_playing = { this.state.currently_playing }
             joining_players = {this.state.joining_players}
             handleAlertDismissal = {this.handleAlertDismissal.bind(this)}

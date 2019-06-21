@@ -46,6 +46,18 @@ class TurnActionAlert extends React.Component {
     }
   }
 
+  checkIfFirstRound() {
+    const { round_number } = this.props
+
+    if (round_number != 1){
+      return(
+        <a href='#' onClick={this.handleSelectedAction.bind(this, "raise")}>
+          Raise
+        </a>
+      )
+    }
+  }
+
   render() {
     const { body } = this.props
     const { call_check_action } = this.state
@@ -56,9 +68,7 @@ class TurnActionAlert extends React.Component {
         <a href='#' onClick={this.handleSelectedAction.bind(this, call_check_action)}>
           { call_check_action.charAt(0).toUpperCase() + call_check_action.slice(1) }
         </a>
-        <a href='#' onClick={this.handleSelectedAction.bind(this, "raise")}>
-          Raise
-        </a>
+        {this.checkIfFirstRound()}
         <a href='#' onClick={this.handleSelectedAction.bind(this, "fold")}>
           Fold
         </a>
