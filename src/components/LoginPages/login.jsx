@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { requestPOSTTo } from '../../shared/request_handlers';
+import RegisterPlayerModal from "./registerPlayerModal";
 
 class Login extends React.Component {
   constructor(props) {
@@ -10,7 +11,8 @@ class Login extends React.Component {
       username: "",
       password: "",
       isAuthenticated: false,
-      redirectionLocation: '/games'
+      redirectionLocation: '/games',
+      displayModal: false,
     };
   }
 
@@ -57,6 +59,32 @@ class Login extends React.Component {
     })
   }
 
+  showModal() {
+    this.setState({ displayModal: !this.state.displayModal })
+  }
+
+  onModalChange(e) {
+    this.setState({
+      [e.target.id]: e.target.value
+    })
+  }
+
+  onModalSubmit(e) {
+    e.preventDefault()
+    var url = `http://localhost:3000/players/`
+    var body = {
+      username: this.state.username,
+      email: this.state.email,
+      password: this.state.password
+    }
+
+    requestPOSTTo(url, body).then(response => {
+      if (response.status !== "error") {
+        window.location.reload();
+      }
+    })
+  }
+
   render() {
     if (this.state.isAuthenticated) {
       return(
@@ -73,7 +101,16 @@ class Login extends React.Component {
             <input id="username" autoFocus={true} name="username" required={true} onChange={this.onFormChange.bind(this)} /><br />
             <input id="password" type="password" name="password" onChange={this.onFormChange.bind(this)} required={true} /><br />
             <input type="submit" value="Log In" />
+            <input type="button" value="Register User" onClick={this.showModal.bind(this)}/>
           </form>
+          <RegisterPlayerModal displayModal={this.state.displayModal} onClose={this.showModal.bind(this)}>
+            <form id="registerPlayerForm" method="post" onSubmit={this.onModalSubmit.bind(this)} >
+              Username:<br /><input id="username" autoFocus={true} name="username" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Email:<br /><input id="email" type="email" autoFocus={true} name="email" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Password:<br /><input id="password" type="password" autoFocus={true} name="password" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              <input type="submit" value="Register Player" />
+            </form>
+          </RegisterPlayerModal>
         </div>
       )
     }
