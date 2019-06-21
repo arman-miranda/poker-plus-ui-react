@@ -442,8 +442,17 @@ class Game extends React.Component {
     }
   }
 
+  checkIfJoiningPlayer() {
+    const { currentUser } = this.props
+    const { joining_players } = this.state
+    let joining_player = joining_players.find(joining_player => {
+      return joining_player.player_id === currentUser.id
+    })
+    return !!joining_player
+  }
+
   handleAutomaticFoldingAlert() {
-    if(this.state.game_is_active) {
+    if(this.state.game_is_active && this.checkIfJoiningPlayer()) {
       if(window.confirm('This action will automatically fold your current game. Are you sure you want to continue?')) {
         this.handleShowGameLobby()
       }
@@ -547,7 +556,7 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
-        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
+        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Back to Games Lobby</button>
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
