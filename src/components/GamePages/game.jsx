@@ -64,6 +64,11 @@ class Game extends React.Component {
     this.app.unsubscribe()
   }
 
+  handleGameStateSetting() {
+    this.handleCurrentSeatAssignments()
+    this.handleCurrentComCards()
+  }
+
   createSocket() {
     let cable = Cable.createConsumer('ws://localhost:3000/cable')
     let gameId = this.props.match.params.id
@@ -105,12 +110,23 @@ class Game extends React.Component {
             if(data.community_cards.length > 0) {
               this.getCurrentComCards()
             }
+          } else if (data.action_type === 'new_round_start') {
+            this.setState({
+              ...data
+            }, () => { this.handleGameStateSetting() })
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
             })
           } else {
             this.props.handleAlerts(data)
+          }
+        },
+        reset_game_state: () => {
+          const { currentUser } = this.props
+          const { dealer_id } = this.state
+          if (dealer_id === currentUser.id) {
+            this.app.perform("reset_game_state", {game_id: this.state.id})
           }
         },
       }
@@ -355,14 +371,7 @@ class Game extends React.Component {
       this.setState({ community_card_modal: cardType })
       if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     } else {
-      alert("Game Ended")
-      requestPUTTo(
-        `http://localhost:3000/games/${this.state.id}`,
-        {
-          game_is_active: false,
-          joining_players: []
-        }
-      )
+      this.app.reset_game_state()
     }
   }
 
