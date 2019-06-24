@@ -138,7 +138,7 @@ class Game extends React.Component {
   }
 
   willUpdateStateData(data) {
-    return data.joining_players ||
+    return data.joining_players_count ||
            data.showCardSelectionScreen ||
            data.button ||
            data.action_type === 'new_round_start'
@@ -347,13 +347,13 @@ class Game extends React.Component {
       cardsSpan.setAttribute("id", cardsSpanId)
       seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
 
-      player_game.then(result => result.cards.map( (card, i) =>{
-          let cardSpan = document.createElement("a")
-          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = parseCards(card.number, card.suit)
-          cardsSpan.append(cardSpan)
-        })
-      )
+      /* player_game.then(result => result.cards.map( (card, i) =>{
+       *     let cardSpan = document.createElement("a")
+       *     cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+       *     cardSpan.textContent = parseCards(card.number, card.suit)
+       *     cardsSpan.append(cardSpan)
+       *   })
+       * ) */
     }
   }
 
@@ -429,8 +429,9 @@ class Game extends React.Component {
         `http://localhost:3000/games/${this.state.id}/request_game_start`
       )
       setTimeout(() => {
-        const {joining_players} = this.state
-        if (joining_players.length < 2) {
+        const {joining_players_count} = this.state
+        console.log(joining_players_count)
+        if (joining_players_count < 2) {
           getDataFromServer(
             `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
           )
@@ -440,10 +441,8 @@ class Game extends React.Component {
             {
               game_is_active: true,
               change_button: true,
-              joining_players: joining_players
             }
           ).then(result => {
-            console.log(result)
             this.initializeGameCard(result.game_sessions[0].community_card.id)
           })
         }
