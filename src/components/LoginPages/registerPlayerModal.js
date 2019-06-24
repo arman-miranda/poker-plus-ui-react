@@ -12,7 +12,7 @@ export default class RegisterPlayerModal extends React.Component {
     }
     return (
       <div className="modal" id="modal">
-        <h3>Register Player <input type="submit" value="Close" onClick={this.onClose.bind(this)} />
+        <h3>Register New Player <input type="submit" value="Close" onClick={this.onClose.bind(this)} />
         </h3>
         <div className="content">{this.props.children}</div>
       </div>
