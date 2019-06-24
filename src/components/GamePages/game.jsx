@@ -139,6 +139,7 @@ class Game extends React.Component {
 
   willUpdateStateData(data) {
     return data.joining_players_count ||
+           data.joining_players ||
            data.showCardSelectionScreen ||
            data.button ||
            data.action_type === 'new_round_start'
