@@ -13,6 +13,7 @@ class Login extends React.Component {
       newUsername: "",
       newEmail: "",
       newPassword: "",
+      newPasswordConfirmation: "",
       isAuthenticated: false,
       isPremium: false,
       redirectionLocation: '/games',
@@ -79,29 +80,39 @@ class Login extends React.Component {
     }));
   }
 
+  checkIfPasswordsMatch(){
+    if (this.state.newPassword == this.state.newPasswordConfirmation){
+      return true
+    }
+  }
+
   onModalSubmit(e) {
     e.preventDefault()
-    var url = `http://localhost:3000/players/`
-    var body = {
-      username: this.state.newUsername,
-      email: this.state.newEmail,
-      password: this.state.newPassword,
-      is_premium: this.state.isPremium
-    }
-
-    requestPOSTTo(url, body).then(response => {
-      if (response.status === 200) {
-        const login = `http://localhost:3000/authenticate`
-
-        requestPOSTTo(login, body)
-          .then( response => {this.handleResponse(response)} )
+    if (this.checkIfPasswordsMatch()) {
+      var url = `http://localhost:3000/players/`
+      var body = {
+        username: this.state.newUsername,
+        email: this.state.newEmail,
+        password: this.state.newPassword,
+        is_premium: this.state.isPremium
       }
-      if (response.status === 204) {
-        if (window.confirm('Username / Email already taken.')) {
-          window.location.reload()
+
+      requestPOSTTo(url, body).then(response => {
+        if (response.status === 200) {
+          const login = `http://localhost:3000/authenticate`
+
+          requestPOSTTo(login, body)
+            .then( response => {this.handleResponse(response)} )
         }
-      }
-    })
+        if (response.status === 204) {
+          if (window.confirm('Username / Email already taken.')) {
+            window.location.reload()
+          }
+        }
+      })
+    } else {
+      alert("Password does not match")
+    }
   }
 
   render() {
@@ -127,6 +138,7 @@ class Login extends React.Component {
               Username:<br /><input id="newUsername" autoFocus={true} name="newUsername" required={true} onChange={this.onModalChange.bind(this)} /><br />
               Email:<br /><input id="newEmail" type="email" name="newEmail" required={true} onChange={this.onModalChange.bind(this)} /><br />
               Password:<br /><input id="newPassword" type="password" name="newPassword" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Confirm Password:<br /><input id="newPasswordConfirmation" type="password" name="newPasswordConfirmation" required={true} onChange={this.onModalChange.bind(this)} /><br />
               <input type="checkbox" id="isPremium" name="isPremium" value="true" onChange={this.onCheckBoxToggle.bind(this)} /> Dealer<br/>
               <input type="submit" value="Register Player" />
             </form>
