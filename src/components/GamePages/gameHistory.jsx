@@ -3,6 +3,7 @@ import '../../stylesheets/games_table.css';
 import { Redirect } from 'react-router-dom';
 import { getDataFromServer } from '../../shared/request_handlers'
 import { parseCards } from '../../shared/card_generator.js';
+import { Link } from 'react-router-dom';
 
 class GameHistory extends React.Component {
   constructor(props) {
@@ -141,12 +142,15 @@ class GameHistory extends React.Component {
   render() {
     return(
       <div>
+        <Link to={`/games/${this.props.match.params.game_id}/game_sessions/`}>Return to Game Sessions</Link>
+        <br />
+
         <div id="communityCardDiv">
-          <h4>Community Cards:</h4>
+          <strong>Community Cards:</strong>
         </div><br />
 
         <div id="playerCardsDiv">
-          <h4>Player Cards:</h4>
+          <strong>Player Cards:</strong>
           <table>
             <thead>
               <tr>
@@ -160,7 +164,7 @@ class GameHistory extends React.Component {
         </div><br />
 
         <div id="playerCardsDiv">
-          <h4>Action Log:</h4>
+          <strong>Action Log:</strong>
           <table>
             <thead>
               <tr>

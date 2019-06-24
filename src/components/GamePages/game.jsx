@@ -10,6 +10,7 @@ import Cable from 'actioncable'
 import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 import { parseCards } from '../../shared/card_generator.js';
+import { Link } from 'react-router-dom';
 
 class Game extends React.Component {
   constructor(props) {
@@ -548,6 +549,10 @@ class Game extends React.Component {
           />
         }
         <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
+
+        <Link to={`/games/${this.state.id}/game_sessions/`}>Game Sessions</Link>
+        <br />
+
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}

@@ -4,7 +4,8 @@ import Login from './components/LoginPages/login';
 import PlayerWaitinglists from './components/PlayerPages/playerWaitinglists';
 import GameWaitinglists from './components/GamePages/gameWaitinglists';
 import CardSelection from './components/GamePages/cardSelection';
-import GameHistory from './components/GamePages/gameHistory'
+import GameHistory from './components/GamePages/gameHistory';
+import GameHistories from './components/GamePages/gameHistories'
 
 export const routes = [
   {
@@ -52,5 +53,10 @@ export const routes = [
     exact: true,
     path: '/games/:game_id/game_sessions/:id/',
     component: GameHistory
+  },
+  {
+    exact: true,
+    path: '/games/:game_id/game_sessions/',
+    component: GameHistories
   }
 ];
