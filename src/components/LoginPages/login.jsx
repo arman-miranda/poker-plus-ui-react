@@ -10,10 +10,11 @@ class Login extends React.Component {
     this.state = {
       username: "",
       password: "",
-      new_username: "",
-      new_email: "",
-      new_password: "",
+      newUsername: "",
+      newEmail: "",
+      newPassword: "",
       isAuthenticated: false,
+      isPremium: false,
       redirectionLocation: '/games',
       displayModal: false,
     };
@@ -72,13 +73,20 @@ class Login extends React.Component {
     })
   }
 
+  onCheckBoxToggle(e){
+    this.setState(prevState => ({
+      isPremium: !prevState.isPremium
+    }));
+  }
+
   onModalSubmit(e) {
     e.preventDefault()
     var url = `http://localhost:3000/players/`
     var body = {
-      username: this.state.new_username,
-      email: this.state.new_email,
-      password: this.state.new_password
+      username: this.state.newUsername,
+      email: this.state.newEmail,
+      password: this.state.newPassword,
+      is_premium: this.state.isPremium
     }
 
     requestPOSTTo(url, body).then(response => {
@@ -116,9 +124,10 @@ class Login extends React.Component {
           </form>
           <RegisterPlayerModal displayModal={this.state.displayModal} onClose={this.showModal.bind(this)}>
             <form id="registerPlayerForm" method="post" onSubmit={this.onModalSubmit.bind(this)} >
-              Username:<br /><input id="new_username" autoFocus={true} name="new_username" required={true} onChange={this.onModalChange.bind(this)} /><br />
-              Email:<br /><input id="new_email" type="email" name="new_email" required={true} onChange={this.onModalChange.bind(this)} /><br />
-              Password:<br /><input id="new_password" type="password" name="new_password" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Username:<br /><input id="newUsername" autoFocus={true} name="newUsername" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Email:<br /><input id="newEmail" type="email" name="newEmail" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              Password:<br /><input id="newPassword" type="password" name="newPassword" required={true} onChange={this.onModalChange.bind(this)} /><br />
+              <input type="checkbox" id="isPremium" name="isPremium" value="true" onChange={this.onCheckBoxToggle.bind(this)} /> Dealer<br/>
               <input type="submit" value="Register Player" />
             </form>
           </RegisterPlayerModal>
