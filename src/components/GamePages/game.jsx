@@ -335,10 +335,14 @@ class Game extends React.Component {
   }
 
   showOwnCards(player) {
+    const { joining_players } = this.state
     let cardsSpanId = `${player.seat_number}_cardsSpan`
     if ( document.getElementById(cardsSpanId) === null ) {
-      var player_game = getDataFromServer(
-        `http://localhost:3000/games/${this.state.id}/player_games/${player.player_game_id}`
+      const joined_player = joining_players.find((joining_player) => {
+        return joining_player.player_id === player.player_id
+      })
+      const player_session = getDataFromServer(
+        `http://localhost:3000/games/${this.state.id}/player_sessions/${joined_player.id}`
       )
 
       let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
@@ -348,13 +352,13 @@ class Game extends React.Component {
       cardsSpan.setAttribute("id", cardsSpanId)
       seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
 
-      /* player_game.then(result => result.cards.map( (card, i) =>{
-       *     let cardSpan = document.createElement("a")
-       *     cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-       *     cardSpan.textContent = parseCards(card.number, card.suit)
-       *     cardsSpan.append(cardSpan)
-       *   })
-       * ) */
+      player_session.then(result => result.cards.map( (card, i) =>{
+        let cardSpan = document.createElement("a")
+        cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+        cardSpan.textContent = parseCards(card.number, card.suit)
+        cardsSpan.append(cardSpan)
+      })
+      )
     }
   }
 
