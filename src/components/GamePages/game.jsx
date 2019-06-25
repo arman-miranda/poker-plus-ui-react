@@ -341,6 +341,11 @@ class Game extends React.Component {
       const joined_player = joining_players.find((joining_player) => {
         return joining_player.player_id === player.player_id
       })
+
+      if (!joined_player) {
+        return;
+      }
+
       const player_session = getDataFromServer(
         `http://localhost:3000/games/${this.state.id}/player_sessions/${joined_player.id}`
       )
