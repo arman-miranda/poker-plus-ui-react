@@ -54,7 +54,6 @@ class Game extends React.Component {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
 
-
     this.handleCurrentSeatAssignments()
     this.getCurrentComCards()
     this.createSocket()
@@ -337,34 +336,41 @@ class Game extends React.Component {
   showOwnCards(player) {
     const { joining_players } = this.state
     let cardsSpanId = `${player.seat_number}_cardsSpan`
-    if ( document.getElementById(cardsSpanId) === null ) {
-      const joined_player = joining_players.find((joining_player) => {
-        return joining_player.player_id === player.player_id
-      })
+    let currentCardsSpan = document.getElementById(cardsSpanId)
 
-      if (!joined_player) {
-        return;
-      }
-
-      const player_session = getDataFromServer(
-        `http://localhost:3000/games/${this.state.id}/player_sessions/${joined_player.id}`
-      )
-
-      let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
-      let seatSpan = seatPosition.nextSibling
-
-      let cardsSpan = document.createElement('span')
-      cardsSpan.setAttribute("id", cardsSpanId)
-      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
-
-      player_session.then(result => result.cards.map( (card, i) =>{
-        let cardSpan = document.createElement("a")
-        cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-        cardSpan.textContent = parseCards(card.number, card.suit)
-        cardsSpan.append(cardSpan)
-      })
-      )
+    if (currentCardsSpan) {
+      currentCardsSpan.parentNode.removeChild(currentCardsSpan)
     }
+
+    const joined_player = joining_players.find((joining_player) => {
+      return joining_player.player_id === player.player_id
+    })
+
+    if (!joined_player) {
+      return;
+    }
+
+    const player_session = getDataFromServer(
+      `http://localhost:3000/games/${this.state.id}/player_sessions/${joined_player.id}`
+    )
+
+    let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
+    let seatSpan = seatPosition.nextSibling
+
+    let cardsSpan = document.createElement('span')
+    cardsSpan.setAttribute("id", cardsSpanId)
+    seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+
+    player_session.then(result => {
+      if (result.cards) {
+        result.cards.map( (card, i) =>{
+          let cardSpan = document.createElement("a")
+          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+          cardSpan.textContent = parseCards(card.number, card.suit)
+          cardsSpan.append(cardSpan)
+        })
+      }
+    })
   }
 
   handleWaitinglistRedirection(e) {
