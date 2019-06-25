@@ -45,7 +45,7 @@ export const routes = [
   },
   {
     exact: true,
-    path: '/games/:game_id/player_games/:id/edit',
+    path: '/games/:game_id/player_sessions/:id/edit',
     component: CardSelection
   },
   {
