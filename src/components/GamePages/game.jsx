@@ -492,6 +492,16 @@ class Game extends React.Component {
     return joining_player_ids.includes(current_user_id)
   }
 
+  getPlayerPosition(position) {
+    const { players } = this.state
+    let playerPosition = players.find(player => {
+      return player.seat_number === position
+    })
+    if (playerPosition){
+      return playerPosition.player_name
+    }
+  }
+
   render() {
     const {
       alert_props,
@@ -551,7 +561,10 @@ class Game extends React.Component {
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
-          <span style={{float:"right"}}>{this.props.currentUser.username}</span>
+          <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
+          Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}<br />
+          Small Blind: Seat #{this.state.small_blind}: {this.getPlayerPosition(this.state.small_blind)}<br />
+          BigBlind: Seat #{this.state.big_blind}: {this.getPlayerPosition(this.state.big_blind)}<br />
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
