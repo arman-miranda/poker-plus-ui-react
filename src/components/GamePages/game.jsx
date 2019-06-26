@@ -26,6 +26,7 @@ class Game extends React.Component {
       game_name: null,
       community_card_modal: "",
       joining_players: [],
+      joining_players_count: 0,
       players: [],
       current_logs: "",
       communityCards: {}
