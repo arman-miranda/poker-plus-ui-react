@@ -39,20 +39,22 @@ class PlayerGameHistories extends React.Component {
 
       var PGHIdData = document.createElement("td")
       PGHIdData.setAttribute("class", "PGHIdData")
-      PGHIdData.textContent = session.game.id
+      PGHIdData.textContent = session.game_session.game.id
       playerGameHistoryRow.append(PGHIdData)
 
       var PGHGameNameData = document.createElement("td")
       PGHGameNameData.setAttribute("class", "PGHGameNameData")
 
       var sessionHistoryLink = document.createElement("a")
-      sessionHistoryLink.setAttribute("href", `/games/${session.game.id}/game_sessions/${session.id}`)
-      sessionHistoryLink.textContent = session.game.name
+      // TODO: link to game_session history
+      // sessionHistoryLink.setAttribute("href", `/games/${session.game_session.game.id}/game_sessions/${session.game_session.id}`)
+      sessionHistoryLink.textContent = session.game_session.game.name
 
       PGHGameNameData.append(sessionHistoryLink)
       playerGameHistoryRow.append(PGHGameNameData)
 
-      var created_at = new Date(session.game.created_at)
+      var created_at = new Date(session.game_session.created_at)
+
       function appendLeadingZeroes(n){
         if(n < 10){
           return "0" + n;
@@ -66,16 +68,6 @@ class PlayerGameHistories extends React.Component {
       PGHDateTimeData.setAttribute("class", "PGHDateTimeData")
       PGHDateTimeData.textContent = `${dateString} ${timeString}`
       playerGameHistoryRow.append(PGHDateTimeData)
-
-      // var PGHCardData = document.createElement("td")
-      // PGHCardData.setAttribute("class", "PGHCardData")
-      // session.cards.map(card => {
-      //   var PGHCardEntry = document.createElement("a")
-      //   PGHCardEntry.setAttribute("class", "PGHCardEntry")
-      //   PGHCardEntry.textContent = parseCards(card.number, card.suit)
-      //   PGHCardData.append(PGHCardEntry)
-      // })
-      // playerGameHistoryRow.append(PGHCardData)
 
       playerGameHistoryTable.append(playerGameHistoryRow)
     })
