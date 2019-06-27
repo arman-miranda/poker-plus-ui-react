@@ -12,7 +12,8 @@ class Games extends React.Component {
       games: [],
       gameID: null,
       displayModal: false,
-      gameName: ""
+      gameName: "",
+      showGamePage: null
     }
   }
 
@@ -73,7 +74,9 @@ class Games extends React.Component {
 
     requestPOSTTo(url, body).then(response => {
       if (response.status !== "error") {
-        window.location.reload();
+        this.setState({
+          showGamePage: this.props.match.url
+        })
       }
     })
   }
@@ -84,6 +87,10 @@ class Games extends React.Component {
   }
 
   render() {
+    if(this.state.showGamePage) {
+      return <Redirect to={`/games/${this.state.games[0].id}`} />
+    }
+
     if(this.state.gameID) {
       return <Redirect to={`/games/${this.state.gameID}`} />
     }

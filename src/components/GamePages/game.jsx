@@ -563,8 +563,6 @@ class Game extends React.Component {
           Dealer: {dealer_name}
           <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
           Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}<br />
-          Small Blind: Seat #{this.state.small_blind}: {this.getPlayerPosition(this.state.small_blind)}<br />
-          BigBlind: Seat #{this.state.big_blind}: {this.getPlayerPosition(this.state.big_blind)}<br />
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
