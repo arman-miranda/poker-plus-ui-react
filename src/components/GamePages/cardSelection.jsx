@@ -18,7 +18,7 @@ class CardSelection extends React.Component {
 
   componentDidMount() {
     const { id, gameId } = this.state
-    var url = `http://localhost:3000/games/${gameId}/player_games/${id}`
+    var url = `http://localhost:3000/games/${gameId}/player_sessions/${id}`
     var data = getDataFromServer(url)
 
     data.then(response => {
@@ -31,9 +31,9 @@ class CardSelection extends React.Component {
   onFormSubmit(e) {
     e.preventDefault()
     const {id, gameId} = this.state
-    var url = `http://localhost:3000/games/${gameId}/player_games/${id}/cards`
+    var url = `http://localhost:3000/games/${gameId}/player_sessions/${id}/cards`
     var body = {
-      player_game_id: this.state.id,
+      player_session_id: this.state.id,
       card1_suit: this.state.suit1,
       card1_value: this.state.value1,
       card2_suit: this.state.suit2,
