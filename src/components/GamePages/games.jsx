@@ -92,7 +92,9 @@ class Games extends React.Component {
   }
 
   handleGameRedirect(){
-    this.setState({showGamePage: this.props.match.url})
+    if (this.props.currentUser.is_premium){
+      this.setState({showGamePage: this.props.match.url})
+    }
   }
 
   render() {
