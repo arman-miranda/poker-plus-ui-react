@@ -13,7 +13,8 @@ class Games extends React.Component {
       gameID: null,
       displayModal: false,
       gameName: "",
-      showGamePage: null
+      showGamePage: null,
+      newGameID:""
     }
   }
 
@@ -38,6 +39,10 @@ class Games extends React.Component {
         received: (data) => {
           if (data.message === "LobbyUpdated") {
             this.getAllGamesFromServer()
+          } else if (data.message === "NewGameAdded"){
+            this.setState({
+              newGameID: data.game_id
+            }, () => this.handleGameRedirect())
           }
         },
       }
@@ -75,7 +80,7 @@ class Games extends React.Component {
     requestPOSTTo(url, body).then(response => {
       if (response.status !== "error") {
         this.setState({
-          showGamePage: this.props.match.url
+          displayModal: false
         })
       }
     })
@@ -86,9 +91,13 @@ class Games extends React.Component {
     this.setState({gameID: e.target[0].value})
   }
 
+  handleGameRedirect(){
+    this.setState({showGamePage: this.props.match.url})
+  }
+
   render() {
     if(this.state.showGamePage) {
-      return <Redirect to={`/games/${this.state.games[0].id}`} />
+      return <Redirect to={`/games/${this.state.newGameID}`} />
     }
 
     if(this.state.gameID) {
