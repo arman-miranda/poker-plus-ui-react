@@ -26,6 +26,7 @@ class Game extends React.Component {
       game_name: null,
       community_card_modal: "",
       joining_players: [],
+      joining_players_count: 0,
       players: [],
       current_logs: "",
       communityCards: {}
@@ -350,8 +351,8 @@ class Game extends React.Component {
       return;
     }
 
-    const player_session = getDataFromServer(
-      `http://localhost:3000/games/${this.state.id}/player_sessions/${joined_player.id}`
+    const game = getDataFromServer(
+      `http://localhost:3000/games/${this.state.id}/`
     )
 
     let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
@@ -361,16 +362,19 @@ class Game extends React.Component {
     cardsSpan.setAttribute("id", cardsSpanId)
     seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
 
-    player_session.then(result => {
-      if (result.cards) {
-        result.cards.map( (card, i) =>{
-          let cardSpan = document.createElement("a")
-          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = parseCards(card.number, card.suit)
-          cardsSpan.append(cardSpan)
-        })
+    game.then(
+      result => {
+        let this_joining_player = result.joining_players.find(joining_player => { return joining_player.player_id === player.player_id })
+        if (this_joining_player && this_joining_player.cards) {
+          this_joining_player.cards.map( (card, i) =>{
+            let cardSpan = document.createElement("a")
+            cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+            cardSpan.textContent = parseCards(card.number, card.suit)
+            cardsSpan.append(cardSpan)
+          })
+        }
       }
-    })
+    )
   }
 
   handleWaitinglistRedirection(e) {
