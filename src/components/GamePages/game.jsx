@@ -364,14 +364,15 @@ class Game extends React.Component {
 
     game.then(
       result => {
-        result.joining_players.find(player => {
-          return player.player_id === player.player_id
-        }).cards.map( (card, i) =>{
-          let cardSpan = document.createElement("a")
-          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = parseCards(card.number, card.suit)
-          cardsSpan.append(cardSpan)
-        })
+        let this_joining_player = result.joining_players.find(joining_player => { return joining_player.player_id === player.player_id })
+        if (this_joining_player && this_joining_player.cards) {
+          this_joining_player.cards.map( (card, i) =>{
+            let cardSpan = document.createElement("a")
+            cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+            cardSpan.textContent = parseCards(card.number, card.suit)
+            cardsSpan.append(cardSpan)
+          })
+        }
       }
     )
   }
