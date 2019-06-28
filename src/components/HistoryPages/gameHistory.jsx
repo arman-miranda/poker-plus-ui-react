@@ -144,6 +144,7 @@ class GameHistory extends React.Component {
   }
 
   renderPlayerCards(){
+    let {button} = this.state || null
     let playerSessions = this.state.player_sessions_history
     let playerCardsTable = document.getElementById("playerCardsTable")
 
@@ -158,6 +159,13 @@ class GameHistory extends React.Component {
       var PSSeatNumberData = document.createElement("td")
       PSSeatNumberData.setAttribute("class", "PSSeatNumberData")
       PSSeatNumberData.textContent = playerSession.seat_number
+
+      if (playerSession.seat_number === button) {
+        var PSSeatNumberButtonData = document.createElement("a")
+        PSSeatNumberButtonData.textContent = "(Button)"
+        PSSeatNumberData.append(PSSeatNumberButtonData)
+      }
+
       playerSessionRow.append(PSSeatNumberData)
 
       var PSCardsData = document.createElement("td")
