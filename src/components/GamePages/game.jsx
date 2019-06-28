@@ -164,7 +164,7 @@ class Game extends React.Component {
       `http://localhost:3000/games/${this.props.match.params.id}/`
     ).then(results => {
       if (results.community_cards !== null) {
-        this.setState({ current_community_cards: [...results.community_cards.cards] })
+        this.setState({ current_community_cards: results.community_cards })
         this.handleCurrentComCards()
       }
     })

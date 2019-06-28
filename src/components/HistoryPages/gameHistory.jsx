@@ -90,7 +90,7 @@ class GameHistory extends React.Component {
   }
 
   renderCommunityCards(){
-    let cards = this.state.community_card.cards
+    let cards = this.state.community_card.cards_history
     let communityCardDiv = document.getElementById("communityCardDiv")
 
     if (cards.length <= 3) {
