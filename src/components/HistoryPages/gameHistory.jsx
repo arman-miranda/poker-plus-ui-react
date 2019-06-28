@@ -11,7 +11,8 @@ class GameHistory extends React.Component {
     this.state = {
       community_card: {},
       id: {},
-      rounds: {}
+      rounds: {},
+      prevRoundNumber: 0
     }
   }
 
@@ -93,8 +94,9 @@ class GameHistory extends React.Component {
     let cards = this.state.community_card.cards_history
     let communityCardDiv = document.getElementById("communityCardDiv")
 
-    if (cards.length <= 3) {
+    if (cards.length < 3) {
       let preFlopText = document.createElement("a")
+
       preFlopText.textContent = "(Game ended pre-flop)"
       communityCardDiv.append(preFlopText)
     }
@@ -102,6 +104,7 @@ class GameHistory extends React.Component {
     if (cards.length >= 3) {
       let flopDiv = document.createElement("div")
       flopDiv.setAttribute("class", "flopDiv")
+      flopDiv.setAttribute("style","padding-left: 10px")
       flopDiv.textContent = "Flop:"
       communityCardDiv.append(flopDiv)
 
@@ -119,6 +122,7 @@ class GameHistory extends React.Component {
     if (cards.length >= 4) {
       let turnDiv = document.createElement("div")
       turnDiv.setAttribute("class", "turnDiv")
+      turnDiv.setAttribute("style","padding-left: 10px")
       turnDiv.textContent = "Turn:"
       communityCardDiv.append(turnDiv)
 
@@ -132,6 +136,7 @@ class GameHistory extends React.Component {
     if (cards.length >= 5) {
       let riverDiv = document.createElement("div")
       riverDiv.setAttribute("class", "riverDiv")
+      riverDiv.setAttribute("style","padding-left: 10px")
       riverDiv.textContent = "River:"
       communityCardDiv.append(riverDiv)
 
@@ -185,19 +190,27 @@ class GameHistory extends React.Component {
   renderActionLog(){
     let rounds = this.state.rounds
     let actionLogTable = document.getElementById("actionLogTable")
+    const roundMarkers = ["Pre-flop","Flop","Turn","River"]
 
     rounds.map((round,i)=>{
       let roundNumber = i+1
+
+      if (this.state.prevRoundNumber+1 === roundNumber) {
+        var roundMarkerRow = document.createElement("tr")
+
+        var roundMarkerActionSpan = document.createElement("strong")
+        roundMarkerActionSpan.textContent = roundMarkers[roundNumber-1]
+
+        roundMarkerRow.append(roundMarkerActionSpan)
+        actionLogTable.append(roundMarkerRow)
+      }
+
       round.player_rounds.map(playerRound => {
         var actionLogRow = document.createElement("tr")
 
-        var ALRoundNumberData = document.createElement("td")
-        ALRoundNumberData.setAttribute("class", "ALRoundNumberData")
-        ALRoundNumberData.textContent = roundNumber
-        actionLogRow.append(ALRoundNumberData)
-
         var ALPlayerNameData = document.createElement("td")
         ALPlayerNameData.setAttribute("class", "ALPlayerNameData")
+        ALPlayerNameData.setAttribute("style", "padding-left:10px;")
         ALPlayerNameData.textContent = playerRound.player.username
         actionLogRow.append(ALPlayerNameData)
 
@@ -209,6 +222,7 @@ class GameHistory extends React.Component {
         actionLogRow.append(ALActionData)
 
         actionLogTable.append(actionLogRow)
+        this.setState({ prevRoundNumber: roundNumber })
       })
     })
   }
@@ -224,7 +238,7 @@ class GameHistory extends React.Component {
 
         <div id="playerCardsDiv">
           <strong>Player Cards:</strong>
-          <table>
+          <table style={{'width': '50%', 'padding-left':'10px'}}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -238,14 +252,7 @@ class GameHistory extends React.Component {
 
         <div id="playerCardsDiv">
           <strong>Action Log:</strong>
-          <table>
-            <thead>
-              <tr>
-                <th>Round</th>
-                <th>Player</th>
-                <th>Action</th>
-              </tr>
-            </thead>
+          <table style={{'width':'25%', 'padding-left':'10px'}}>
             <tbody id="actionLogTable" />
           </table>
         </div><br />
