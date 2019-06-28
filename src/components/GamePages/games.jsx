@@ -40,9 +40,7 @@ class Games extends React.Component {
           if (data.message === "LobbyUpdated") {
             this.getAllGamesFromServer()
           } else if (data.message === "NewGameAdded"){
-            this.setState({
-              newGameID: data.game_id
-            }, () => this.handleGameRedirect())
+            this.handleGameRedirect(data.dealer_id, data.game_id)
           }
         },
       }
@@ -91,9 +89,12 @@ class Games extends React.Component {
     this.setState({gameID: e.target[0].value})
   }
 
-  handleGameRedirect(){
-    if (this.props.currentUser.is_premium){
-      this.setState({showGamePage: this.props.match.url})
+  handleGameRedirect(dealer_id, game_id){
+    if (this.props.currentUser.id === dealer_id){
+      this.setState({
+        newGameID: game_id,
+        showGamePage: this.props.match.url
+      })
     }
   }
 
