@@ -38,73 +38,84 @@ class GameHistory extends React.Component {
     let cards = this.state.community_card.cards
     let communityCardDiv = document.getElementById("communityCardDiv")
 
-    let flopDiv = document.createElement("div")
-    flopDiv.setAttribute("class", "flopDiv")
-    flopDiv.textContent = "Flop:"
-    communityCardDiv.append(flopDiv)
+    if (cards.length <= 3) {
+      let preFlopDiv = document.createElement("a")
+      preFlopDiv.textContent = "(Game ended pre-flop)"
+      communityCardDiv.append(preFlopDiv)
+    }
 
-    let flop = cards.slice(0,3)
+    if (cards.length >= 3) {
+      let flopDiv = document.createElement("div")
+      flopDiv.setAttribute("class", "flopDiv")
+      flopDiv.textContent = "Flop:"
+      communityCardDiv.append(flopDiv)
 
-    flop.map(card=>{
-      let flopCard = document.createElement("a")
-      flopCard.setAttribute("class", "flopCard")
-      flopCard.textContent = parseCards(card.number, card.suit)
+      let flop = cards.slice(0,3)
 
-      flopDiv.append(flopCard)
-    })
+      flop.map(card=>{
+        let flopCard = document.createElement("a")
+        flopCard.setAttribute("class", "flopCard")
+        flopCard.textContent = parseCards(card.number, card.suit)
 
-    let turnDiv = document.createElement("div")
-    turnDiv.setAttribute("class", "turnDiv")
-    turnDiv.textContent = "Turn:"
-    communityCardDiv.append(turnDiv)
+        flopDiv.append(flopCard)
+      })
+    }
 
-    let turnCard = document.createElement("a")
-    turnCard.setAttribute("class", "turnCard")
-    turnCard.textContent = parseCards(cards[3].number, cards[3].suit)
+    if (cards.length >= 4) {
+      let turnDiv = document.createElement("div")
+      turnDiv.setAttribute("class", "turnDiv")
+      turnDiv.textContent = "Turn:"
+      communityCardDiv.append(turnDiv)
 
-    turnDiv.append(turnCard)
+      let turnCard = document.createElement("a")
+      turnCard.setAttribute("class", "turnCard")
+      turnCard.textContent = parseCards(cards[3].number, cards[3].suit)
 
-    let riverDiv = document.createElement("div")
-    riverDiv.setAttribute("class", "riverDiv")
-    riverDiv.textContent = "River:"
-    communityCardDiv.append(riverDiv)
+      turnDiv.append(turnCard)
+    }
 
-    let riverCard = document.createElement("a")
-    riverCard.setAttribute("class", "riverCard")
-    riverCard.textContent = parseCards(cards[4].number, cards[4].suit)
+    if (cards.length >= 5) {
+      let riverDiv = document.createElement("div")
+      riverDiv.setAttribute("class", "riverDiv")
+      riverDiv.textContent = "River:"
+      communityCardDiv.append(riverDiv)
 
-    riverDiv.append(riverCard)
+      let riverCard = document.createElement("a")
+      riverCard.setAttribute("class", "riverCard")
+      riverCard.textContent = parseCards(cards[4].number, cards[4].suit)
+
+      riverDiv.append(riverCard)
+    }
   }
 
   renderPlayerCards(){
-    let playerGames = this.state.game.player_games
+    let playerSessions = this.state.player_sessions_history
     let playerCardsTable = document.getElementById("playerCardsTable")
 
-    playerGames.map(playerGame=> {
-      var playerGameRow = document.createElement("tr")
+    playerSessions.map(playerSession=> {
+      var playerSessionRow = document.createElement("tr")
 
-      var PGNameData = document.createElement("td")
-      PGNameData.setAttribute("class", "PGNameData")
-      PGNameData.textContent = playerGame.player.username
-      playerGameRow.append(PGNameData)
+      var PSNameData = document.createElement("td")
+      PSNameData.setAttribute("class", "PSNameData")
+      PSNameData.textContent = playerSession.player.username
+      playerSessionRow.append(PSNameData)
 
-      var PGSeatNumberData = document.createElement("td")
-      PGSeatNumberData.setAttribute("class", "PGSeatNumberData")
-      PGSeatNumberData.textContent = playerGame.seat_number
-      playerGameRow.append(PGSeatNumberData)
+      var PSSeatNumberData = document.createElement("td")
+      PSSeatNumberData.setAttribute("class", "PSSeatNumberData")
+      PSSeatNumberData.textContent = playerSession.seat_number
+      playerSessionRow.append(PSSeatNumberData)
 
-      var PGCardsData = document.createElement("td")
-      PGCardsData.setAttribute("class", "PGCardsData")
-      playerGame.cards.map(card=> {
-        var PGCardElement = document.createElement("a")
-        PGCardElement.setAttribute("class", "PGCardElement")
-        PGCardElement.textContent = parseCards(card.number, card.suit)
+      var PSCardsData = document.createElement("td")
+      PSCardsData.setAttribute("class", "PSCardsData")
+      playerSession.cards_history.map(card=> {
+        var PSCardElement = document.createElement("a")
+        PSCardElement.setAttribute("class", "PSCardElement")
+        PSCardElement.textContent = parseCards(card.number, card.suit)
 
-        PGCardsData.append(PGCardElement)
+        PSCardsData.append(PSCardElement)
       })
-      playerGameRow.append(PGCardsData)
-
-      playerCardsTable.append(playerGameRow)
+      playerSessionRow.append(PSCardsData)
+      playerCardsTable.append(playerSessionRow)
     })
   }
 
