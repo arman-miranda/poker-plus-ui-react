@@ -1,9 +1,7 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
-import { Redirect } from 'react-router-dom';
 import { getDataFromServer } from '../../shared/request_handlers'
 import { parseCards } from '../../shared/card_generator.js';
-import { Link } from 'react-router-dom';
 
 class GameHistory extends React.Component {
   constructor(props) {
@@ -22,7 +20,7 @@ class GameHistory extends React.Component {
 
   fetchHistory() {
     let params = this.props.match.params
-    var game = getDataFromServer(
+    getDataFromServer(
       `http://localhost:3000/games/${params.game_id}/game_sessions/${params.id}`
     ).then(results => {
       if (results !== null) {
@@ -238,7 +236,7 @@ class GameHistory extends React.Component {
 
         <div id="playerCardsDiv">
           <strong>Player Cards:</strong>
-          <table style={{'width': '50%', 'padding-left':'10px'}}>
+          <table style={{paddingLeft:'10px'}}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -252,7 +250,7 @@ class GameHistory extends React.Component {
 
         <div id="playerCardsDiv">
           <strong>Action Log:</strong>
-          <table style={{'width':'25%', 'padding-left':'10px'}}>
+          <table style={{width:'30%', paddingLeft:'10px'}}>
             <tbody id="actionLogTable" />
           </table>
         </div><br />
