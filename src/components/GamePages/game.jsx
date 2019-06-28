@@ -3,7 +3,8 @@ import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
   requestPOSTTo,
-  requestPUTTo
+  requestPUTTo,
+  deleteDataFromServer
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
@@ -481,6 +482,26 @@ class Game extends React.Component {
     }
   }
 
+  handleLeaveGame(e){
+    e.preventDefault()
+    const { id } = this.state
+    const { players } = this.state
+    const { currentUser } = this.props
+    let player_game = players.find(player => {
+      return player.player_id === currentUser.id
+    })
+
+    if (this.state.game_is_active) {
+      this.handleAutomaticFoldingAlert()
+    } else {
+      if(window.confirm('Are you sure you want to leave current the game?')) {
+        deleteDataFromServer(`http://localhost:3000/games/${id}/player_games/${player_game.player_game_id}`).then(result => {
+          this.handleShowGameLobby()
+        })
+      }
+    }
+  }
+
   handleShowGameLobby() {
     this.setState({
       showGameLobby: this.props.match.url
@@ -585,12 +606,17 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
-        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
+        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button> < br />
+        { this.checkIfExistingPlayer() &&
+          <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
+        }
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
           <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
-          Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}<br />
+          { game_is_active &&
+            <p>Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}</p>
+          }
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
