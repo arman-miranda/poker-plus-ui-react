@@ -10,7 +10,6 @@ class GameHistory extends React.Component {
     super(props)
     this.state = {
       community_card: {},
-      game: {},
       id: {},
       rounds: {}
     }
@@ -27,6 +26,7 @@ class GameHistory extends React.Component {
     ).then(results => {
       if (results !== null) {
         this.setState({ ...results })
+        this.renderGameInfo()
         this.renderCommunityCards()
         this.renderPlayerCards()
         this.renderActionLog()
@@ -34,14 +34,69 @@ class GameHistory extends React.Component {
     })
   }
 
+  renderGameInfo() {
+    const {game} = this.state
+    const created_at = new Date(this.state.created_at)
+    const months = ["Jan", "Feb", "Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    let gameInfoDiv = document.getElementById("gameInfoDiv")
+
+    let gameInfoIdNameLink = document.createElement("a")
+    gameInfoIdNameLink.setAttribute("href", `/games/${game.id}`)
+
+    let gameInfoIdNameDiv = document.createElement("div")
+    let gameInfoIdNameLabel = document.createElement("strong")
+    gameInfoIdNameLabel.textContent = `${game.id}: `
+    gameInfoIdNameDiv.append(gameInfoIdNameLabel)
+
+    let gameInfoIdNameData = document.createElement("strong")
+    gameInfoIdNameData.textContent = game.name
+    gameInfoIdNameDiv.append(gameInfoIdNameData)
+
+    gameInfoIdNameLink.append(gameInfoIdNameDiv)
+    gameInfoDiv.append(gameInfoIdNameLink)
+
+    let gameInfoDealerDiv = document.createElement("div")
+    let gameInfoDealerLabel = document.createElement("strong")
+    gameInfoDealerLabel.textContent = "Dealer: "
+    gameInfoDealerDiv.append(gameInfoDealerLabel)
+
+    let gameInfoDealerInfo = document.createElement("strong")
+    gameInfoDealerInfo.textContent = game.dealer.username
+    gameInfoDealerDiv.append(gameInfoDealerInfo)
+
+    gameInfoDiv.append(gameInfoDealerDiv)
+
+    let gameInfoSessionDateDiv = document.createElement("div")
+    let gameInfoSessionDateLabel = document.createElement("strong")
+    gameInfoSessionDateLabel.textContent = "Session Date: "
+    gameInfoSessionDateDiv.append(gameInfoSessionDateLabel)
+
+    let gameInfoSessionDateInfo = document.createElement("span")
+
+    function appendLeadingZeroes(n){
+      if(n < 10){
+        return "0" + n;
+      }
+      return n
+    }
+    let dateString = `${created_at.getDate()} ${months[created_at.getMonth()]} ${created_at.getFullYear()}`
+    let timeString = `${appendLeadingZeroes(created_at.getHours())}:${appendLeadingZeroes(created_at.getMinutes())}`
+    gameInfoSessionDateInfo.textContent = dateString + " " + timeString
+
+    gameInfoSessionDateDiv.append(gameInfoSessionDateInfo)
+
+    gameInfoDiv.append(gameInfoSessionDateDiv)
+  }
+
   renderCommunityCards(){
     let cards = this.state.community_card.cards
     let communityCardDiv = document.getElementById("communityCardDiv")
 
     if (cards.length <= 3) {
-      let preFlopDiv = document.createElement("a")
-      preFlopDiv.textContent = "(Game ended pre-flop)"
-      communityCardDiv.append(preFlopDiv)
+      let preFlopText = document.createElement("a")
+      preFlopText.textContent = "(Game ended pre-flop)"
+      communityCardDiv.append(preFlopText)
     }
 
     if (cards.length >= 3) {
@@ -153,8 +208,7 @@ class GameHistory extends React.Component {
   render() {
     return(
       <div>
-        <Link to={`/games/${this.props.match.params.game_id}/game_sessions/`}>Return to Game Sessions</Link>
-        <br />
+        <div id="gameInfoDiv" /><br />
 
         <div id="communityCardDiv">
           <strong>Community Cards:</strong>

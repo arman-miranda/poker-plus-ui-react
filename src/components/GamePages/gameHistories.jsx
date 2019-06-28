@@ -61,8 +61,7 @@ class GameHistories extends React.Component {
       <div>
         <div>
           <h4>Sessions:</h4>
-          <ol id="sessionIndex">
-          </ol>
+          <ul id="sessionIndex" />
         </div>
         <Link to={`/games/${this.props.match.params.game_id}/`}>Back to Game</Link>
       </div>
