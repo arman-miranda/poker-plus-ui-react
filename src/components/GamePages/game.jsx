@@ -10,6 +10,7 @@ import Cable from 'actioncable'
 import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 import { parseCards } from '../../shared/card_generator.js';
+import { Link } from 'react-router-dom';
 
 class Game extends React.Component {
   constructor(props) {
@@ -26,6 +27,7 @@ class Game extends React.Component {
       game_name: null,
       community_card_modal: "",
       joining_players: [],
+      joining_players_count: 0,
       players: [],
       current_logs: "",
       communityCards: {}
@@ -54,7 +56,6 @@ class Game extends React.Component {
       button.addEventListener('click', this.handleSeatSelection.bind(this))
     })
 
-
     this.handleCurrentSeatAssignments()
     this.getCurrentComCards()
     this.createSocket()
@@ -62,6 +63,11 @@ class Game extends React.Component {
 
   componentWillUnmount() {
     this.app.unsubscribe()
+  }
+
+  handleGameStateSetting() {
+    this.handleCurrentSeatAssignments()
+    this.handleCurrentComCards()
   }
 
   createSocket() {
@@ -105,12 +111,23 @@ class Game extends React.Component {
             if(data.community_cards.length > 0) {
               this.getCurrentComCards()
             }
+          } else if (data.action_type === 'new_round_start') {
+            this.setState({
+              ...data
+            }, () => { this.handleGameStateSetting() })
           } else if (this.willUpdateStateData(data)) {
             this.setState({
               ...data
             })
           } else {
             this.props.handleAlerts(data)
+          }
+        },
+        reset_game_state: () => {
+          const { currentUser } = this.props
+          const { dealer_id } = this.state
+          if (dealer_id === currentUser.id) {
+            this.app.perform("reset_game_state", {game_id: this.state.id})
           }
         },
       }
@@ -122,7 +139,8 @@ class Game extends React.Component {
   }
 
   willUpdateStateData(data) {
-    return data.joining_players ||
+    return data.joining_players_count ||
+           data.joining_players ||
            data.showCardSelectionScreen ||
            data.button ||
            data.action_type === 'new_round_start'
@@ -146,7 +164,7 @@ class Game extends React.Component {
       `http://localhost:3000/games/${this.props.match.params.id}/`
     ).then(results => {
       if (results.community_cards !== null) {
-        this.setState({ current_community_cards: [...results.community_cards.cards] })
+        this.setState({ current_community_cards: results.community_cards })
         this.handleCurrentComCards()
       }
     })
@@ -318,27 +336,46 @@ class Game extends React.Component {
   }
 
   showOwnCards(player) {
+    const { joining_players } = this.state
     let cardsSpanId = `${player.seat_number}_cardsSpan`
-    if ( document.getElementById(cardsSpanId) === null ) {
-      var player_game = getDataFromServer(
-        `http://localhost:3000/games/${this.state.id}/player_games/${player.player_game_id}`
-      )
+    let currentCardsSpan = document.getElementById(cardsSpanId)
 
-      let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
-      let seatSpan = seatPosition.nextSibling
-
-      let cardsSpan = document.createElement('span')
-      cardsSpan.setAttribute("id", cardsSpanId)
-      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
-
-      player_game.then(result => result.cards.map( (card, i) =>{
-          let cardSpan = document.createElement("a")
-          cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
-          cardSpan.textContent = parseCards(card.number, card.suit)
-          cardsSpan.append(cardSpan)
-        })
-      )
+    if (currentCardsSpan) {
+      currentCardsSpan.parentNode.removeChild(currentCardsSpan)
     }
+
+    const joined_player = joining_players.find((joining_player) => {
+      return joining_player.player_id === player.player_id
+    })
+
+    if (!joined_player) {
+      return;
+    }
+
+    const game = getDataFromServer(
+      `http://localhost:3000/games/${this.state.id}/`
+    )
+
+    let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
+    let seatSpan = seatPosition.nextSibling
+
+    let cardsSpan = document.createElement('span')
+    cardsSpan.setAttribute("id", cardsSpanId)
+    seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+
+    game.then(
+      result => {
+        let this_joining_player = result.joining_players.find(joining_player => { return joining_player.player_id === player.player_id })
+        if (this_joining_player && this_joining_player.cards) {
+          this_joining_player.cards.map( (card, i) =>{
+            let cardSpan = document.createElement("a")
+            cardSpan.setAttribute("class", `card_${player.seat_number}_${i+1}`)
+            cardSpan.textContent = parseCards(card.number, card.suit)
+            cardsSpan.append(cardSpan)
+          })
+        }
+      }
+    )
   }
 
   handleWaitinglistRedirection(e) {
@@ -355,14 +392,7 @@ class Game extends React.Component {
       this.setState({ community_card_modal: cardType })
       if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     } else {
-      alert("Game Ended")
-      requestPUTTo(
-        `http://localhost:3000/games/${this.state.id}`,
-        {
-          game_is_active: false,
-          joining_players: []
-        }
-      )
+      this.app.reset_game_state()
     }
   }
 
@@ -420,8 +450,9 @@ class Game extends React.Component {
         `http://localhost:3000/games/${this.state.id}/request_game_start`
       )
       setTimeout(() => {
-        const {joining_players} = this.state
-        if (joining_players.length < 2) {
+        const {joining_players_count} = this.state
+        console.log(joining_players_count)
+        if (joining_players_count < 2) {
           getDataFromServer(
             `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
           )
@@ -431,10 +462,8 @@ class Game extends React.Component {
             {
               game_is_active: true,
               change_button: true,
-              joining_players: joining_players
             }
           ).then(result => {
-            console.log(result)
             this.initializeGameCard(result.game_sessions[0].community_card.id)
           })
         }
@@ -501,6 +530,16 @@ class Game extends React.Component {
     return joining_player_ids.includes(current_user_id)
   }
 
+  getPlayerPosition(position) {
+    const { players } = this.state
+    let playerPosition = players.find(player => {
+      return player.seat_number === position
+    })
+    if (playerPosition){
+      return playerPosition.player_name
+    }
+  }
+
   render() {
     const {
       alert_props,
@@ -557,10 +596,13 @@ class Game extends React.Component {
           />
         }
         <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Back to Games Lobby</button>
+        <Link to={`/games/${this.state.id}/game_sessions/`}>Game Sessions</Link>
+        <br />
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
-          <span style={{float:"right"}}>{this.props.currentUser.username}</span>
+          <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
+          Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}<br />
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
