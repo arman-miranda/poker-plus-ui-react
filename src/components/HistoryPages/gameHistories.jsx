@@ -35,7 +35,7 @@ class GameHistories extends React.Component {
 
     sessions.map(session=>{
       var sessionIndexItem = document.createElement("li")
-      var created_at = new Date(session.created_at)
+      var created_at = new Date(session.updated_at)
 
       var sessionHistoryLink = document.createElement("a")
       sessionHistoryLink.setAttribute("href", `/games/${session.game_id}/game_sessions/${session.id}`)
