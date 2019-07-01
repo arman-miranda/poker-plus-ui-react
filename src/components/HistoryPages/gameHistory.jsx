@@ -186,7 +186,7 @@ class GameHistory extends React.Component {
   }
 
   renderActionLog(){
-    let rounds = this.state.rounds
+    let rounds = this.state.rounds_history
     let actionLogTable = document.getElementById("actionLogTable")
     const roundMarkers = ["Pre-flop","Flop","Turn","River"]
 
