@@ -10,13 +10,15 @@ class GameWaitinglists extends React.Component {
     this.state = {
       game_id: this.props.match.params.id,
       waitinglists: "",
-      redirectToGameLobby: false
+      redirectToGameLobby: false,
+      game: ""
     }
   }
 
   componentDidMount() {
     this.fetchWatingLists()
     this.createSocket()
+    this.fetchGameData()
   }
 
   fetchWatingLists() {
@@ -28,6 +30,19 @@ class GameWaitinglists extends React.Component {
         this.props.handleUserLogout()
       } else {
         this.setState({ waitinglists: results })
+      }
+    })
+  }
+
+  fetchGameData(){
+    const data = getDataFromServer(
+      `http://localhost:3000/games/${this.state.game_id}`
+    )
+    data.then(results => {
+      if (results.error) {
+        this.props.handleUserLogout()
+      } else {
+        this.setState({ game: results })
       }
     })
   }
@@ -46,6 +61,7 @@ class GameWaitinglists extends React.Component {
         received: (data) => {
           if (data.message === "GameWaitinglistUpdated") {
             this.fetchWatingLists()
+            this.fetchGameData()
           }
         },
       }
@@ -69,12 +85,39 @@ class GameWaitinglists extends React.Component {
     )
   }
 
+  checkIfSeatedPlayer(waitinglist) {
+    const { players } = this.state.game
+    let seatedPlayer = players.find(player => {
+      return player.player_id === waitinglist.player.id
+    })
+    return !!seatedPlayer
+  }
+
+  handleDeletePlayerFromGame(waitinglist){
+    const { game_id } = this.state
+    const { players } = this.state.game
+    let player_game = players.find(player => {
+      return player.player_id === waitinglist.player.id
+    })
+    deleteDataFromServer(`http://localhost:3000/games/${game_id}/player_games/${player_game.player_game_id}`)
+  }
+
   handleAcceptClick(waitinglist, e){
-    if(window.confirm("This action will add this user to the game.")){
-      requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
-        player_id: waitinglist.player.id
-      })
+    if(this.checkIfSeatedPlayer(waitinglist)){
+      if(window.confirm("This action will change the users seat.")){
+        requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+          player_id: waitinglist.player.id
+        })
+        this.handleDeletePlayerFromGame(waitinglist)
+      }
+    } else{
+      if(window.confirm("This action will add this user to the game.")){
+        requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+          player_id: waitinglist.player.id
+        })
+      }
     }
+
   }
 
   handleDenyClick(e){

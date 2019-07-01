@@ -473,44 +473,14 @@ class Game extends React.Component {
   }
 
   handleAutomaticFoldingAlert() {
-    const {
-      id,
-      currently_playing,
-      joining_players,
-      round_just_started
-    } = this.state
-    const { currentUser } = this.props
-    let player = joining_players.find(player => {
-      return player.player_id === currentUser.id
-    })
-    if(this.state.game_is_active) {
-      if(window.confirm('This action will automatically fold your current game. Are you sure you want to continue?')) {
-        requestPOSTTo(`http://localhost:3000/games/${id}/player_rounds`, {
-          player_action: "fold",
-          currently_playing: player.seat_number,
-          joining_players: joining_players,
-          round_just_started: round_just_started
-        }).then(
-          this.handleShowGameLobby()
-        )
-      }
-    }
-    else {
-      this.handleShowGameLobby()
-    }
+    this.handleShowGameLobby()
   }
 
   handleLeaveGame(e){
-    e.preventDefault()
-    if (this.state.game_is_active) {
-      this.handleAutomaticFoldingAlert()
-      this.handleDeletePlayerFromGame()
-    } else {
-      if(window.confirm('Are you sure you want to leave current the game?')) {
-        this.handleDeletePlayerFromGame().then(
-          this.handleShowGameLobby()
-        )
-      }
+    if(window.confirm('Are you sure you want to leave current the game?')) {
+      this.handleDeletePlayerFromGame().then(
+        this.handleShowGameLobby()
+      )
     }
   }
 
@@ -631,7 +601,7 @@ class Game extends React.Component {
         <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
         <Link to={`/games/${this.state.id}/game_sessions/`}>Game Sessions</Link>
         <br />
-        { this.checkIfExistingPlayer() &&
+        { this.checkIfExistingPlayer() && !game_is_active &&
           <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
         }
         <h4>
