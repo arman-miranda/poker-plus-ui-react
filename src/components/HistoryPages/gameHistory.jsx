@@ -35,7 +35,7 @@ class GameHistory extends React.Component {
 
   renderGameInfo() {
     const {game} = this.state
-    const created_at = new Date(this.state.created_at)
+    const created_at = new Date(this.state.updated_at)
     const months = ["Jan", "Feb", "Mar","Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     let gameInfoDiv = document.getElementById("gameInfoDiv")
@@ -203,7 +203,7 @@ class GameHistory extends React.Component {
         actionLogTable.append(roundMarkerRow)
       }
 
-      round.player_rounds.map(playerRound => {
+      round.player_rounds_history.map(playerRound => {
         var actionLogRow = document.createElement("tr")
 
         var ALPlayerNameData = document.createElement("td")

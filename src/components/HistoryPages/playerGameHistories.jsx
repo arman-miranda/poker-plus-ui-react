@@ -46,13 +46,13 @@ class PlayerGameHistories extends React.Component {
       PGHGameNameData.setAttribute("class", "PGHGameNameData")
 
       var sessionHistoryLink = document.createElement("a")
-      sessionHistoryLink.setAttribute("href", `/games/${session.game_session.game.id}/game_sessions/${session.game_session.game.id}`)
+      sessionHistoryLink.setAttribute("href", `/games/${session.game_session.game.id}/game_sessions/${session.game_session.id}`)
       sessionHistoryLink.textContent = session.game_session.game.name
 
       PGHGameNameData.append(sessionHistoryLink)
       playerGameHistoryRow.append(PGHGameNameData)
 
-      var created_at = new Date(session.game_session.created_at)
+      var created_at = new Date(session.game_session.updated_at)
 
       function appendLeadingZeroes(n){
         if(n < 10){
