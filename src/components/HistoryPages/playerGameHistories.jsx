@@ -46,8 +46,7 @@ class PlayerGameHistories extends React.Component {
       PGHGameNameData.setAttribute("class", "PGHGameNameData")
 
       var sessionHistoryLink = document.createElement("a")
-      // TODO: link to game_session history
-      // sessionHistoryLink.setAttribute("href", `/games/${session.game_session.game.id}/game_sessions/${session.game_session.id}`)
+      sessionHistoryLink.setAttribute("href", `/games/${session.game_session.game.id}/game_sessions/${session.game_session.game.id}`)
       sessionHistoryLink.textContent = session.game_session.game.name
 
       PGHGameNameData.append(sessionHistoryLink)
@@ -76,6 +75,7 @@ class PlayerGameHistories extends React.Component {
   render() {
     return(
       <div>
+        <Link to={`/`}>Back to games</Link>
         <div>
           <strong>Sessions:</strong>
           <table>

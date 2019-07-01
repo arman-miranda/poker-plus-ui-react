@@ -11,6 +11,7 @@ import Cable from 'actioncable'
 import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 import { parseCards } from '../../shared/card_generator.js';
+import { Link } from 'react-router-dom';
 
 class Game extends React.Component {
   constructor(props) {
@@ -164,7 +165,7 @@ class Game extends React.Component {
       `http://localhost:3000/games/${this.props.match.params.id}/`
     ).then(results => {
       if (results.community_cards !== null) {
-        this.setState({ current_community_cards: [...results.community_cards.cards] })
+        this.setState({ current_community_cards: results.community_cards })
         this.handleCurrentComCards()
       }
     })
@@ -606,7 +607,9 @@ class Game extends React.Component {
             handleAppAlertDismissal = { this.props.handleDismissAlert.bind(this)}
           />
         }
-        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button> < br />
+        <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
+        <Link to={`/games/${this.state.id}/game_sessions/`}>Game Sessions</Link>
+        <br />
         { this.checkIfExistingPlayer() &&
           <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
         }
