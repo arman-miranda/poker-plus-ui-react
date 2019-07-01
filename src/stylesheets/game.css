@@ -2,3 +2,9 @@
   border: solid 1px;
   height: 150px;
 }
+
+.commCard.editable{
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}

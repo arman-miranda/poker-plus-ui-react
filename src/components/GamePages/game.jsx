@@ -26,6 +26,8 @@ class Game extends React.Component {
       game_is_active: false,
       game_name: null,
       community_card_modal: "",
+      old_community_card_edit: null,
+      new_community_card_edit: null,
       joining_players: [],
       joining_players_count: 0,
       players: [],
@@ -179,9 +181,22 @@ class Game extends React.Component {
     }
   }
 
+  handleCommunityCardClick (e) {
+    let cardToBeEdited = this.state.current_community_cards.find(card => {
+      return e.target.attributes.dataId.value === card.id.toString()
+    })
+
+    this.setState({
+      community_card_modal: "edit",
+      old_community_card_edit: cardToBeEdited
+    })
+  }
+
   handleCurrentComCards() {
+    const { currentUser } = this.props
     let cardArray = this.state.current_community_cards || []
     let comCardDiv = document.getElementById("communityCards")
+    let editable = currentUser.id === this.state.dealer_id
 
     this.destroyCurrentComCards()
 
@@ -195,7 +210,9 @@ class Game extends React.Component {
 
       flop.map(card=>{
         let flopCard = document.createElement("a")
-        flopCard.setAttribute("class", "flopCard")
+        flopCard.setAttribute("class", `commCard flopCard${ editable ? " editable" : "" }`)
+        flopCard.setAttribute("dataId", card.id)
+        if (editable) { flopCard.onclick = this.handleCommunityCardClick.bind(this) }
         flopCard.textContent = parseCards(card.number, card.suit)
 
         flopDiv.append(flopCard)
@@ -208,7 +225,9 @@ class Game extends React.Component {
       comCardDiv.append(turnDiv)
 
       let turnCard = document.createElement("a")
-      turnCard.setAttribute("class", "turnCard")
+      turnCard.setAttribute("class", `commCard turnCard${ editable ? " editable" : "" }`)
+      turnCard.setAttribute("dataId", cardArray[3].id)
+      if (editable) { turnCard.onclick = this.handleCommunityCardClick.bind(this) }
       turnCard.textContent = parseCards(cardArray[3].number, cardArray[3].suit)
 
       turnDiv.append(turnCard)
@@ -220,7 +239,9 @@ class Game extends React.Component {
       comCardDiv.append(riverDiv)
 
       let riverCard = document.createElement("a")
-      riverCard.setAttribute("class", "riverCard")
+      riverCard.setAttribute("class", `commCard riverCard${ editable ? " editable" : "" }`)
+      riverCard.setAttribute("dataId", cardArray[4].id)
+      if (editable) { riverCard.onclick = this.handleCommunityCardClick.bind(this) }
       riverCard.textContent = parseCards(cardArray[4].number, cardArray[4].suit)
 
       riverDiv.append(riverCard)
@@ -411,31 +432,60 @@ class Game extends React.Component {
     this.setState({ community_card_modal: e.target.value })
   }
 
-  handleCommunityCardModalSubmit(e) {
+  handleCommunityCardModalClose(e) {
     e.preventDefault()
-    let body = []
-    let cardType = e.target.className
-    let cardCount = 0
-    cardType === "flop" ? cardCount = 3 : cardCount = 1
-    let cardSet = [...Array(cardCount).keys()]
-
-    cardSet.map((i) => {
-      body.push({
-        "suit": this.state.communityCards[cardType + (i+1) + "_suit"],
-        "value": this.state.communityCards[cardType + (i+1) + "_value"]
-      })
-    })
-
-    let url = `http://localhost:3000/games/${this.state.id}/community_cards/${this.state.community_card_id}`
-    requestPUTTo(url, {"cards": body})
-
-    this.nullifyCommunityCards()
     this.setState({
       community_card_modal: "",
-      last_playing_player: this.state.button
-    }, () => {
-      this.handleRoundStates()
+      old_community_card_edit: null
     })
+  }
+
+  handleCommunityCardModalSubmit(e) {
+    e.preventDefault()
+
+    if (this.state.community_card_modal === "edit") {
+      let selectSuit = document.getElementById("edit1_suit").value
+      let selectValue = document.getElementById("edit1_value").value
+
+      let cardId = this.state.old_community_card_edit.id
+      let body = {
+        "suit": this.state.communityCards["edit1_suit"] || selectSuit,
+        "value": this.state.communityCards["edit1_value"] || selectValue
+      }
+      let url = `http://localhost:3000/cards/${cardId}`
+
+      requestPUTTo(url, body)
+      this.nullifyCommunityCards()
+      this.setState({
+        community_card_modal: "",
+        old_community_card_edit: null,
+        new_community_card_edit: null
+      })
+    } else {
+      let body = []
+      let cardType = e.target.className
+      let cardCount = 0
+      cardType === "flop" ? cardCount = 3 : cardCount = 1
+      let cardSet = [...Array(cardCount).keys()]
+
+      cardSet.map((i) => {
+        body.push({
+          "suit": this.state.communityCards[cardType + (i+1) + "_suit"],
+          "value": this.state.communityCards[cardType + (i+1) + "_value"]
+        })
+      })
+
+      let url = `http://localhost:3000/games/${this.state.id}/community_cards/${this.state.community_card_id}`
+      requestPUTTo(url, {"cards": body})
+
+      this.nullifyCommunityCards()
+      this.setState({
+        community_card_modal: "",
+        last_playing_player: this.state.button
+      }, () => {
+        this.handleRoundStates()
+      })
+    }
   }
 
   handleCommunityCardSelectChange(e) {
@@ -540,7 +590,9 @@ class Game extends React.Component {
       showPlayerWaitingList,
       showCardSelectionScreen,
       showGameLobby,
-      game_name
+      game_name,
+      community_card_modal,
+      old_community_card_edit
     } = this.state
     const { params } = this.props.match
 
@@ -550,7 +602,7 @@ class Game extends React.Component {
     NUMBERS = NUMBERS.concat(["Jack","Queen","King"])
 
     let cardCount = 0
-    this.state.community_card_modal === "flop" ? cardCount = 3 : cardCount = 1
+    community_card_modal === "flop" ? cardCount = 3 : cardCount = 1
     var cardSet = [...Array(cardCount).keys()]
 
     if(showGameWaitinglist) {
@@ -615,18 +667,18 @@ class Game extends React.Component {
               onClick={this.handleWaitinglistRedirection.bind(this)}>
               Waitinglist
             </button><br />
-            <CommunityCardModal displayModal={this.state.community_card_modal !== ""}>
-              <form id="communityCardModal" method="post" className={this.state.community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
-                <h4>Set {this.state.community_card_modal}</h4>
+            <CommunityCardModal displayModal={community_card_modal !== ""}>
+              <form id="communityCardModal" method="post" className={community_card_modal} onSubmit={this.handleCommunityCardModalSubmit.bind(this)}>
+                <h4>{ community_card_modal === "edit" ? "Edit community card" : "Set " + community_card_modal }</h4>
                 {
                   cardSet.map((i) => {
                     return(
                       <div key={i}>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_suit"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(community_card_modal) + (i+1) + "_suit"} required={true} defaultValue={ community_card_modal === "edit" ? old_community_card_edit.suit : ""} onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
                         </select>
-                        <select id={(this.state.community_card_modal) + (i+1) + "_value"} required={true} defaultValue="" onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                        <select id={(community_card_modal) + (i+1) + "_value"} required={true} defaultValue={ community_card_modal === "edit" ? old_community_card_edit.number : ""}  onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {NUMBERS.map((number, i) => { return <option key={number + i} value={i+1}>{number}</option> })}
                         </select>
@@ -634,7 +686,8 @@ class Game extends React.Component {
                     )
                   })
                 }
-                <input type="submit" value={`Set ${this.state.community_card_modal}`} /><br />
+                <input type="submit" value={ community_card_modal === "edit" ? "Update" : `Set ${community_card_modal}`} />
+                <a href="" onClick={this.handleCommunityCardModalClose.bind(this)} style={ community_card_modal === "edit" ? {} : {display:"none"} }>Cancel</a><br />
               </form>
             </CommunityCardModal>
             <br />
