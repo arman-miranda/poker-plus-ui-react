@@ -12,7 +12,9 @@ class Games extends React.Component {
       games: [],
       gameID: null,
       displayModal: false,
-      gameName: ""
+      gameName: "",
+      showGamePage: null,
+      newGameID:""
     }
   }
 
@@ -37,6 +39,8 @@ class Games extends React.Component {
         received: (data) => {
           if (data.message === "LobbyUpdated") {
             this.getAllGamesFromServer()
+          } else if (data.message === "NewGameAdded"){
+            this.handleGameRedirect(data.dealer_id, data.game_id)
           }
         },
       }
@@ -73,7 +77,9 @@ class Games extends React.Component {
 
     requestPOSTTo(url, body).then(response => {
       if (response.status !== "error") {
-        window.location.reload();
+        this.setState({
+          displayModal: false
+        })
       }
     })
   }
@@ -83,7 +89,20 @@ class Games extends React.Component {
     this.setState({gameID: e.target[0].value})
   }
 
+  handleGameRedirect(dealer_id, game_id){
+    if (this.props.currentUser.id === dealer_id){
+      this.setState({
+        newGameID: game_id,
+        showGamePage: this.props.match.url
+      })
+    }
+  }
+
   render() {
+    if(this.state.showGamePage) {
+      return <Redirect to={`/games/${this.state.newGameID}`} />
+    }
+
     if(this.state.gameID) {
       return <Redirect to={`/games/${this.state.gameID}`} />
     }
@@ -91,6 +110,7 @@ class Games extends React.Component {
     return(
       <div>
         <Link to={`/players/${this.props.currentUser.id}/waitinglists`}>{this.props.currentUser.username}'s Waitinglist</Link>
+        <Link to={`/players/${this.props.currentUser.id}/game_sessions`}>{this.props.currentUser.username}'s History</Link>
         <form onSubmit={this.onFormSubmit.bind(this)}>
           <h4>
             GameID:

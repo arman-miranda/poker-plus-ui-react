@@ -20,6 +20,10 @@ class PlayerWaitinglists extends React.Component {
     this.fetchWatingLists()
     this.createSocket()
   }
+  
+  componentWillUnmount() {
+    this.app.unsubscribe()
+  }
 
   fetchWatingLists() {
     const data = getDataFromServer(
@@ -98,7 +102,7 @@ class PlayerWaitinglists extends React.Component {
           {waitinglists.map( waitinglist => {
               return (
                 <tr key={waitinglist.game.id}>
-                  <td>{waitinglist.game.id}</td>
+                  <td><a href={'/games/' + waitinglist.game.id}>{waitinglist.game.id}</a></td>
                   <td>{waitinglist.game.name}</td>
                   <td>{waitinglist.preferred_seat}</td>
                   <td>{waitinglist.game.player_games.length} / 9</td>
