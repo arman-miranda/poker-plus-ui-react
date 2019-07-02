@@ -27,7 +27,7 @@ class App extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let cable = Cable.createConsumer('ws://18.179.196.103:3000/cable')
     this.app = cable.subscriptions.create({
       channel: 'UserChannel'
     }, {
@@ -43,7 +43,7 @@ class App extends React.Component {
     this.setState({
       currentUser: null
     })
-    deleteDataFromServer('localhost:3000/logout')
+    deleteDataFromServer('logout')
   }
 
   handleUserLogin() {

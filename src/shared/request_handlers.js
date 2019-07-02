@@ -1,9 +1,15 @@
+const host_url = 'http://18.179.196.103:3000';
+
+function parseUrl(url) {
+  return `${host_url}/${url}`;
+}
+
 function getDataFromServer(url) {
-  return requestGETFrom(url);
+  return requestGETFrom(parseUrl(url));
 }
 
 function deleteDataFromServer(url) {
-  return fetch(url,{
+  return fetch(parseUrl(url),{
     method: 'DELETE',
     credentials: 'include'
   }).then(window.location.reload())
@@ -23,7 +29,7 @@ function requestGETFrom(url) {
 }
 
 function requestPOSTTo(url, body) {
-  return fetch(url, {
+  return fetch(parseUrl(url), {
     credentials: 'include',
     method: 'POST',
     headers: {
@@ -34,7 +40,7 @@ function requestPOSTTo(url, body) {
 }
 
 function requestPUTTo(url, body){
-  return fetch(url, {
+  return fetch(parseUrl(url), {
     credentials: 'include',
     method: 'PUT',
     headers: {

@@ -21,7 +21,7 @@ class TurnActionAlert extends React.Component {
       joining_players,
       round_just_started
     } = this.props
-    requestPOSTTo(`http://localhost:3000/games/${game_id}/player_rounds`, {
+    requestPOSTTo(`games/${game_id}/player_rounds`, {
       player_action: action,
       currently_playing: currently_playing,
       joining_players: joining_players,

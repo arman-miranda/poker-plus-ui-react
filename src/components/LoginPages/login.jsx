@@ -31,7 +31,7 @@ class Login extends React.Component {
 
   onFormSubmit(e) {
     e.preventDefault()
-    const url = `http://localhost:3000/authenticate`
+    const url = `/authenticate`
     const creds = {
       "username": this.state.username,
       "password": this.state.password

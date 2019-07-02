@@ -27,7 +27,7 @@ class PlayerWaitinglists extends React.Component {
 
   fetchWatingLists() {
     const data = getDataFromServer(
-      `http://localhost:3000/players/${this.state.player_id}/waitinglists`
+      `players/${this.state.player_id}/waitinglists`
     )
     data.then(results => {
       if (results.error) {
@@ -39,7 +39,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let cable = Cable.createConsumer('ws://18.179.196.103:3000/cable')
     let playerId = this.props.match.params.id
 
     this.app = cable.subscriptions.create(
@@ -85,7 +85,7 @@ class PlayerWaitinglists extends React.Component {
   }
 
   handleClick(e){
-    deleteDataFromServer(`http://localhost:3000/waitinglists/${e.id}`);
+    deleteDataFromServer(`waitinglists/${e.id}`);
   }
 
   handleGamesLobbyRedirection() {

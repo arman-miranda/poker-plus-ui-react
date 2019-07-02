@@ -28,7 +28,7 @@ class Games extends React.Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('ws://localhost:3000/cable')
+    let cable = Cable.createConsumer('ws://18.179.196.103:3000/cable')
 
     this.app = cable.subscriptions.create(
       {
@@ -48,7 +48,7 @@ class Games extends React.Component {
   }
 
   getAllGamesFromServer() {
-    const data = getDataFromServer('http://localhost:3000/games')
+    const data = getDataFromServer('games')
     data.then(results => {
       if (results.error) {
         this.props.handleUserLogout()
@@ -70,7 +70,7 @@ class Games extends React.Component {
 
   onModalSubmit(e) {
     e.preventDefault()
-    var url = `http://localhost:3000/games/`
+    var url = `games/`
     var body = {
       name: this.state.name
     }
