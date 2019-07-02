@@ -319,13 +319,13 @@ class Game extends React.Component {
     while(spans[0]) {
       spans[0].parentNode.removeChild(spans[0])
     }
-
-    var buttons = document.getElementsByClassName("seatButton")
-    for(var x=0; x < buttons.length; x++)
-    {
-      buttons[x].removeAttribute("disabled","disabled")
+    if(!this.state.game_is_active){
+      var buttons = document.getElementsByClassName("seatButton")
+      for(var x=0; x < buttons.length; x++)
+      {
+        buttons[x].removeAttribute("disabled","disabled")
+      }
     }
-
   }
 
   updateSeatNameFor(player) {
