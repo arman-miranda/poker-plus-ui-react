@@ -3,7 +3,8 @@ import { Redirect } from 'react-router-dom';
 import {
   getDataFromServer,
   requestPOSTTo,
-  requestPUTTo
+  requestPUTTo,
+  deleteDataFromServer
 } from '../../shared/request_handlers'
 import '../../stylesheets/game.css';
 import Cable from 'actioncable'
@@ -339,6 +340,13 @@ class Game extends React.Component {
     while(spans[0]) {
       spans[0].parentNode.removeChild(spans[0])
     }
+    if(!this.state.game_is_active){
+      var buttons = document.getElementsByClassName("seatButton")
+      for(var x=0; x < buttons.length; x++)
+      {
+        buttons[x].removeAttribute("disabled","disabled")
+      }
+    }
   }
 
   updateSeatNameFor(player) {
@@ -522,14 +530,23 @@ class Game extends React.Component {
   }
 
   handleAutomaticFoldingAlert() {
-    if(this.state.game_is_active) {
-      if(window.confirm('This action will automatically fold your current game. Are you sure you want to continue?')) {
-        this.handleShowGameLobby()
-      }
+    this.handleShowGameLobby()
+  }
+
+  handleLeaveGame(e){
+    if(window.confirm('Are you sure you want to leave current the game?')) {
+      this.handleDeletePlayerFromGame()
     }
-    else {
-      this.handleShowGameLobby()
-    }
+  }
+
+  handleDeletePlayerFromGame(){
+    const { id } = this.state
+    const { players } = this.state
+    const { currentUser } = this.props
+    let player_game = players.find(player => {
+      return player.player_id === currentUser.id
+    })
+    deleteDataFromServer(`http://localhost:3000/games/${id}/player_games/${player_game.player_game_id}`)
   }
 
   handleShowGameLobby() {
@@ -639,15 +656,18 @@ class Game extends React.Component {
           />
         }
         <button onClick={this.handleAutomaticFoldingAlert.bind(this)}>Go Back to Games</button>
-
         <Link to={`/games/${this.state.id}/game_sessions/`}>Game Sessions</Link>
         <br />
-
+        { this.checkIfExistingPlayer() && !game_is_active &&
+          <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
+        }
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
           <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
-          Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}<br />
+          { game_is_active &&
+            <p>Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}</p>
+          }
         </h4>
         { this.props.currentUser.id === this.state.dealer_id &&
           <div id="dealer_action_buttons">
@@ -695,31 +715,31 @@ class Game extends React.Component {
         }
         <div id="communityCards" />
         <form>
-          <button name="seat_number" id="seat_number_1" value="1" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_1" value="1" disabled={game_is_active}>
             Seat 1
           </button><br/>
-          <button name="seat_number" id="seat_number_2" value="2" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_2" value="2" disabled={game_is_active}>
             Seat 2
           </button><br/>
-          <button name="seat_number" id="seat_number_3" value="3" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_3" value="3" disabled={game_is_active}>
             Seat 3
           </button><br/>
-          <button name="seat_number" id="seat_number_4" value="4" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_4" value="4" disabled={game_is_active}>
             Seat 4
           </button><br/>
-          <button name="seat_number" id="seat_number_5" value="5" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_5" value="5" disabled={game_is_active}>
             Seat 5
           </button><br/>
-          <button name="seat_number" id="seat_number_6" value="6" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_6" value="6" disabled={game_is_active}>
             Seat 6
           </button><br/>
-          <button name="seat_number" id="seat_number_7" value="7" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_7" value="7" disabled={game_is_active}>
             Seat 7
           </button><br/>
-          <button name="seat_number" id="seat_number_8" value="8" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_8" value="8" disabled={game_is_active}>
             Seat 8
           </button><br/>
-          <button name="seat_number" id="seat_number_9" value="9" disabled={game_is_active}>
+          <button name="seat_number" className="seatButton" id="seat_number_9" value="9" disabled={game_is_active}>
             Seat 9
           </button><br/>
         </form>
