@@ -6,7 +6,14 @@ function deleteDataFromServer(url) {
   return fetch(url,{
     method: 'DELETE',
     credentials: 'include'
-  }).then(window.location.reload());
+  }).then(window.location.reload())
+}
+
+function deleteDataFromWaitingList(url) {
+  return fetch(url,{
+    method: 'DELETE',
+    credentials: 'include'
+  })
 }
 
 function requestGETFrom(url) {
@@ -41,5 +48,6 @@ export {
   getDataFromServer,
   deleteDataFromServer,
   requestPOSTTo,
-  requestPUTTo
+  requestPUTTo,
+  deleteDataFromWaitingList
 };

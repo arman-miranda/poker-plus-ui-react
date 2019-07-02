@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../stylesheets/games_table.css';
 import { Link, Redirect } from 'react-router-dom';
-import { getDataFromServer, deleteDataFromServer, requestPUTTo } from '../../shared/request_handlers'
+import { getDataFromServer, deleteDataFromServer, deleteDataFromWaitingList, requestPUTTo } from '../../shared/request_handlers'
 import Cable from 'actioncable';
 
 class GameWaitinglists extends React.Component {
@@ -20,7 +20,7 @@ class GameWaitinglists extends React.Component {
     this.createSocket()
     this.fetchGameData()
   }
-  
+
   componentWillUnmount() {
     this.app.unsubscribe()
   }
@@ -103,7 +103,7 @@ class GameWaitinglists extends React.Component {
     let player_game = players.find(player => {
       return player.player_id === waitinglist.player.id
     })
-    deleteDataFromServer(`http://localhost:3000/games/${game_id}/player_games/${player_game.player_game_id}`)
+    deleteDataFromWaitingList(`http://localhost:3000/games/${game_id}/player_games/${player_game.player_game_id}`)
   }
 
   handleAcceptClick(waitinglist, e){
@@ -121,7 +121,6 @@ class GameWaitinglists extends React.Component {
         })
       }
     }
-
   }
 
   handleDenyClick(e){
