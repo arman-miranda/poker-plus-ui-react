@@ -382,7 +382,7 @@ class Game extends React.Component {
     }
 
     const game = getDataFromServer(
-      `http://localhost:3000/games/${this.state.id}/`
+      `/games/${this.state.id}/`
     )
 
     let seatPosition = document.getElementById(`seat_number_${player.seat_number}`)
@@ -460,7 +460,7 @@ class Game extends React.Component {
         "suit": this.state.communityCards["edit1_suit"] || selectSuit,
         "value": this.state.communityCards["edit1_value"] || selectValue
       }
-      let url = `http://localhost:3000/cards/${cardId}`
+      let url = `/cards/${cardId}`
 
       requestPUTTo(url, body)
       this.nullifyCommunityCards()
@@ -546,7 +546,7 @@ class Game extends React.Component {
     let player_game = players.find(player => {
       return player.player_id === currentUser.id
     })
-    deleteDataFromServer(`http://localhost:3000/games/${id}/player_games/${player_game.player_game_id}`)
+    deleteDataFromServer(`/games/${id}/player_games/${player_game.player_game_id}`)
   }
 
   handleShowGameLobby() {

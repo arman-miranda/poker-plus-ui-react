@@ -40,7 +40,7 @@ class GameWaitinglists extends React.Component {
 
   fetchGameData(){
     const data = getDataFromServer(
-      `http://localhost:3000/games/${this.state.game_id}`
+      `/games/${this.state.game_id}`
     )
     data.then(results => {
       if (results.error) {
@@ -103,20 +103,20 @@ class GameWaitinglists extends React.Component {
     let player_game = players.find(player => {
       return player.player_id === waitinglist.player.id
     })
-    deleteDataFromWaitingList(`http://localhost:3000/games/${game_id}/player_games/${player_game.player_game_id}`)
+    deleteDataFromWaitingList(`/games/${game_id}/player_games/${player_game.player_game_id}`)
   }
 
   handleAcceptClick(waitinglist, e){
     if(this.checkIfSeatedPlayer(waitinglist)){
       if(window.confirm("This action will change the users seat.")){
-        requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+        requestPUTTo(`/waitinglists/${waitinglist.id}`, {
           player_id: waitinglist.player.id
         })
         this.handleDeletePlayerFromGame(waitinglist)
       }
     } else{
       if(window.confirm("This action will add this user to the game.")){
-        requestPUTTo(`http://localhost:3000/waitinglists/${waitinglist.id}`, {
+        requestPUTTo(`/waitinglists/${waitinglist.id}`, {
           player_id: waitinglist.player.id
         })
       }

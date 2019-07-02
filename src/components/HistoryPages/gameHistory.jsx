@@ -21,7 +21,7 @@ class GameHistory extends React.Component {
   fetchHistory() {
     let params = this.props.match.params
     getDataFromServer(
-      `http://localhost:3000/games/${params.game_id}/game_sessions/${params.id}`
+      `/games/${params.game_id}/game_sessions/${params.id}`
     ).then(results => {
       if (results !== null) {
         this.setState({ ...results })

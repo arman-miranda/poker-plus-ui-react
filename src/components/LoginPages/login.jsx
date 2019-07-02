@@ -89,7 +89,7 @@ class Login extends React.Component {
   onModalSubmit(e) {
     e.preventDefault()
     if (this.checkIfPasswordsMatch()) {
-      var url = `http://localhost:3000/players/`
+      var url = `/players/`
       var body = {
         username: this.state.newUsername,
         email: this.state.newEmail,
@@ -99,7 +99,7 @@ class Login extends React.Component {
 
       requestPOSTTo(url, body).then(response => {
         if (response.status === 200) {
-          const login = `http://localhost:3000/authenticate`
+          const login = `/authenticate`
 
           requestPOSTTo(login, body)
             .then( response => {this.handleResponse(response)} )
