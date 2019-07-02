@@ -20,6 +20,10 @@ class PlayerWaitinglists extends React.Component {
     this.fetchWatingLists()
     this.createSocket()
   }
+  
+  componentWillUnmount() {
+    this.app.unsubscribe()
+  }
 
   fetchWatingLists() {
     const data = getDataFromServer(
