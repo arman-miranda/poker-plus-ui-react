@@ -76,10 +76,13 @@ class Games extends React.Component {
     }
 
     requestPOSTTo(url, body).then(response => {
-      if (response.status !== "error") {
+      if (response.status === 200) {
         this.setState({
           displayModal: false
         })
+      }
+      if (response.status === 422){
+        alert('Game Name has already been taken.')
       }
     })
   }
