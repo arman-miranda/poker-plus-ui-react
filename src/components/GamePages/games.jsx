@@ -13,6 +13,8 @@ class Games extends React.Component {
       gameID: null,
       displayModal: false,
       gameName: "",
+      smallBlindPrice: "",
+      bigBlindPrice: "",
       showGamePage: null,
       newGameID:""
     }
@@ -72,7 +74,9 @@ class Games extends React.Component {
     e.preventDefault()
     var url = `http://localhost:3000/games/`
     var body = {
-      name: this.state.name
+      name: this.state.name,
+      small_blind_price: this.state.smallBlindPrice,
+      big_blind_price: this.state.bigBlindPrice
     }
 
     requestPOSTTo(url, body).then(response => {
@@ -125,7 +129,9 @@ class Games extends React.Component {
         </form>
         <Modal displayModal={this.state.displayModal} onClose={this.showModal.bind(this)}>
           <form id="hostGameForm" method="post" onSubmit={this.onModalSubmit.bind(this)} >
-            <input id="name" autoFocus={true} name="gameName" required={true} onChange={this.onModalChange.bind(this)} />
+            Name: <input id="name" autoFocus={true} name="gameName" required={true} onChange={this.onModalChange.bind(this)} /> <br />
+            Small Blind Price: <input type="number" id="smallBlindPrice" name="small_blind_price" required={true} onChange={this.onModalChange.bind(this)} min="0"/><br />
+            Big Blind Price: <input type="number" id="bigBlindPrice" name="big_blind_price" required={true} onChange={this.onModalChange.bind(this)} min="0"/><br />
             <input type="submit" value="Create Game" />
           </form>
         </Modal>
