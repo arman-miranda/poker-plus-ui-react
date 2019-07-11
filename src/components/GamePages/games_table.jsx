@@ -14,10 +14,16 @@ class GamesTable extends React.Component {
             Game Name
           </th>
           <th>
-            Available Seats
+            Small Blind Price
+          </th>
+          <th>
+            Big Blind Price
           </th>
           <th>
             # of Players
+          </th>
+          <th>
+            Dealer
           </th>
           <th>
             Status
@@ -46,10 +52,16 @@ class GamesTable extends React.Component {
                   {game.game_name}
                 </td>
                 <td>
-                  {game.available_seats.join(', ')}
+                  {game.small_blind_price}
+                </td>
+                <td>
+                  {game.big_blind_price}
                 </td>
                 <td>
                   {game.number_of_players}
+                </td>
+                <td>
+                  {game.dealer}
                 </td>
                 <td>
                   {game.game_is_active ? 'Ongoing' : 'Waiting'}
