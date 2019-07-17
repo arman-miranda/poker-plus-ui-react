@@ -12,6 +12,8 @@ import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 import { parseCards } from '../../shared/card_generator.js';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faDotCircle } from '@fortawesome/free-solid-svg-icons'
 
 class Game extends React.Component {
   constructor(props) {
@@ -355,14 +357,28 @@ class Game extends React.Component {
     span.setAttribute("class", "seatSpan")
     span.textContent = ` ${player.player_name}`
 
-    seat_position.parentNode
-      .insertBefore(span, seat_position.nextSibling)
+    if (player.seat_number === this.state.button){
+      seat_position.parentNode
+        .insertBefore(span, seat_position.nextSibling.nextSibling)
+    } else {
+      seat_position.parentNode
+        .insertBefore(span, seat_position.nextSibling)
+    }
     seat_position.setAttribute("disabled","disabled")
 
     if (player.player_name === this.props.currentUser.username) {
       this.showOwnCards(player)
     }
   }
+
+  renderIcon(seat){
+    if (seat === this.state.button) {
+      return(
+        <FontAwesomeIcon icon="dot-circle" />
+      )
+    }
+  }
+
 
   showOwnCards(player) {
     const { joining_players } = this.state
@@ -390,7 +406,12 @@ class Game extends React.Component {
 
     let cardsSpan = document.createElement('span')
     cardsSpan.setAttribute("id", cardsSpanId)
-    seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+
+    if (player.seat_number === this.state.button){
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling.nextSibling)
+    } else {
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+    }
 
     game.then(
       result => {
@@ -566,8 +587,13 @@ class Game extends React.Component {
       }
 
       joining_players.forEach(joining_player => {
-        let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling
-        player_name.setAttribute("style", "color: black")
+        if (joining_player.seat_number === this.state.button){
+          let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling.nextSibling
+          player_name.setAttribute("style", "color: black")
+        } else {
+          let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling
+          player_name.setAttribute("style", "color: black")
+        }
       })
     }
   }
@@ -717,31 +743,31 @@ class Game extends React.Component {
         <form>
           <button name="seat_number" className="seatButton" id="seat_number_1" value="1" disabled={game_is_active}>
             Seat 1
-          </button><br/>
+          </button>{this.renderIcon(1) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_2" value="2" disabled={game_is_active}>
             Seat 2
-          </button><br/>
+          </button>{this.renderIcon(2) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_3" value="3" disabled={game_is_active}>
             Seat 3
-          </button><br/>
+          </button>{this.renderIcon(3) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_4" value="4" disabled={game_is_active}>
             Seat 4
-          </button><br/>
+          </button>{this.renderIcon(4) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_5" value="5" disabled={game_is_active}>
             Seat 5
-          </button><br/>
+          </button>{this.renderIcon(5) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_6" value="6" disabled={game_is_active}>
             Seat 6
-          </button><br/>
+          </button>{this.renderIcon(6) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_7" value="7" disabled={game_is_active}>
             Seat 7
-          </button><br/>
+          </button>{this.renderIcon(7) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_8" value="8" disabled={game_is_active}>
             Seat 8
-          </button><br/>
+          </button>{this.renderIcon(8) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_9" value="9" disabled={game_is_active}>
             Seat 9
-          </button><br/>
+          </button>{this.renderIcon(9) }<br/>
         </form>
         { game_is_active &&
           <div>
