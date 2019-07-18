@@ -122,6 +122,8 @@ class Game extends React.Component {
             this.setState({
               ...data
             })
+          } else if (data.action_type === 'game_closed') {
+            this.dealerClosed()
           } else {
             this.props.handleAlerts(data)
           }
@@ -529,6 +531,12 @@ class Game extends React.Component {
     }
   }
 
+  dealerClosed(){
+    if(window.confirm('Dealer Closed the game')) {
+      this.handleAutomaticFoldingAlert()
+    }
+  }
+
   handleAutomaticFoldingAlert() {
     this.handleShowGameLobby()
   }
@@ -570,6 +578,17 @@ class Game extends React.Component {
         player_name.setAttribute("style", "color: black")
       })
     }
+  }
+
+  handleCloseGame(e){
+    e.preventDefault()
+    requestPUTTo(
+      `http://localhost:3000/games/${this.state.id}`,
+      {
+        game_is_active: true,
+        is_closed: true,
+      }
+    )
   }
 
   readyForRoundStart() {
@@ -660,6 +679,9 @@ class Game extends React.Component {
         <br />
         { this.checkIfExistingPlayer() && !game_is_active &&
           <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
+        }
+        { this.props.currentUser.id === this.state.dealer_id &&
+          <button name="close_game" onClick={this.handleCloseGame.bind(this)}>Close Game</button>
         }
         <h4>
           Game #{params.id}: {game_name} <br />
