@@ -33,7 +33,11 @@ class Game extends React.Component {
       joining_players_count: 0,
       players: [],
       current_logs: "",
-      communityCards: {}
+      communityCards: {},
+      last_action: "",
+      new_player: "",
+      dealt_player: "",
+      round_is_ended: false
     }
   }
 
@@ -69,6 +73,7 @@ class Game extends React.Component {
   }
 
   handleGameStateSetting() {
+    this.updateGameLog('new_round_start')
     this.handleCurrentSeatAssignments()
     this.handleCurrentComCards()
   }
@@ -92,10 +97,18 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
+          } else if (data.alert_type === 'game_start') {
+            this.updateGameLog('session_start')
+            this.props.handleAlerts(data)
           } else if (data.action_type === 'game_start') {
+            this.updateGameLog(data.action_type)
             this.setState({
               ...data
             })
+          } else if (data.event === 'cards_dealt') {
+            this.setState({
+             ...data
+            }, () => this.updateGameLog(data.event))
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
@@ -108,9 +121,13 @@ class Game extends React.Component {
             this.setState({
               alert_props: {...data}
             })
+            this.updateGameLog(data.alert_type)
           } else if (data.event === 'round_ended') {
+            this.setState({ round_is_ended: true })
             this.handleRoundEnd(data.round)
           } else if (data.event === 'community_card_update') {
+            this.setState({ round_is_ended: false })
+            this.updateGameLog(data.event)
             if(data.community_cards.length > 0) {
               this.getCurrentComCards()
             }
@@ -122,6 +139,18 @@ class Game extends React.Component {
             this.setState({
               ...data
             })
+          } else if (data.event === 'player_turn'){
+            this.setState({
+              last_action: {...data}
+            })
+            this.updateGameLog(data.event)
+          } else if (data.message === 'NewPlayer') {
+            this.setState({
+              new_player: {...data}
+            })
+            this.updateGameLog(data.message)
+          } else if (data.message === 'session_end') {
+            this.updateGameLog(data.message)
           } else {
             this.props.handleAlerts(data)
           }
@@ -514,6 +543,7 @@ class Game extends React.Component {
           getDataFromServer(
             `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
           )
+          this.updateGameLog("insufficient_players")
         } else {
           requestPUTTo(
             `http://localhost:3000/games/${this.state.id}`,
@@ -595,6 +625,77 @@ class Game extends React.Component {
     })
     if (playerPosition){
       return playerPosition.player_name
+    }
+  }
+
+  updateGameLog(action){
+    const { round_number } = this.state
+    const { last_action } = this.state
+    const { new_player } = this.state
+    let game_log = document.getElementById(`game_logs`)
+    let player = this.getPlayerPosition(this.state.currently_playing)
+    let p = document.createElement('p')
+    let cardType = ["flop","turn","river"][round_number-1]
+
+    if(action === 'session_start'){
+      p.textContent = 'Dealer started the game.'
+      game_log.prepend(p)
+    } else if(action === 'insufficient_players'){
+      p.textContent = 'Number of willing participants are insufficient.\n Dealer will try to start the game again after a few moments.'
+      game_log.prepend(p)
+    } else if(action === 'game_start'){
+      p.textContent = 'Dealer is dealing cards.'
+      game_log.prepend(p)
+    } else if(action === 'cards_dealt'){
+      let dp = this.getPlayerPosition(this.state.dealt_player)
+      p.textContent = ` ${dp} has set their cards.`
+      game_log.prepend(p)
+      if (this.state.game_is_active && this.readyForRoundStart()) {
+        this.updateGameLog("ready_for_round_start")
+      }
+    } else if(action === 'ready_for_round_start'){
+      p.textContent = "All players have set their cards. Dealer may start the round."
+      game_log.prepend(p)
+    } else if (action === 'small_blind'){
+      p.textContent = 'Dealer has started the round.'
+      game_log.prepend(p)
+    } else if (action === 'new_round_start' && this.state.community_card_id !== null){
+      let cardType = ["flop","turn","river"][round_number-1]
+      p.textContent = `Dealer is now setting the ${cardType}.`
+      game_log.prepend(p)
+    } else if (action === 'community_card_update' && this.state.community_card_id !== null){
+      let cardType = ["flop","turn","river"][round_number-2]
+      p.textContent = `Dealer has set the ${cardType}.`
+      game_log.prepend(p)
+      this.updateGameLog("awaiting_player_action")
+    } else if (action === 'session_end'){
+      p.textContent = 'Game session has ended.'
+      game_log.prepend(p)
+    } else if (action === 'awaiting_player_action'){
+      if (!this.state.round_is_ended) {
+        p.textContent = `Waiting for ${player}'s action...`
+        game_log.prepend(p)
+      }
+    } else if (action === 'player_turn'){
+      let prevPlayer = this.getPlayerPosition(last_action.player)
+      if (last_action.last_action === "small_blind") {
+        p.textContent = ` ${prevPlayer} has paid the small blind.`
+        game_log.prepend(p)
+      }
+      if (last_action.last_action === "big_blind") {
+        p.textContent = ` ${prevPlayer} has paid the big blind.`
+        game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
+      }
+      if (last_action.last_action !== null && last_action.last_action !== "small_blind" && last_action.last_action !== "big_blind") {
+        let prevPlayer = this.getPlayerPosition(last_action.player)
+        p.textContent = ` ${prevPlayer} ${last_action.last_action}s.`
+        game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
+      }
+    } else if (action === 'NewPlayer') {
+      p.textContent = ` ${new_player.confirmed_player} joined the game.`
+      game_log.prepend(p)
     }
   }
 
@@ -743,13 +844,13 @@ class Game extends React.Component {
             Seat 9
           </button><br/>
         </form>
-        { game_is_active &&
+
           <div>
             <h4>Game Logs:</h4>
             <div id="game_logs">
             </div>
           </div>
-        }
+
       </div>
     )
   }
