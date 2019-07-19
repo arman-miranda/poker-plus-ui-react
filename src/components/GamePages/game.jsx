@@ -25,6 +25,7 @@ class Game extends React.Component {
       player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
+      is_closed: false,
       game_name: null,
       community_card_modal: "",
       old_community_card_edit: null,
@@ -532,9 +533,8 @@ class Game extends React.Component {
   }
 
   dealerClosed(){
-    if(window.confirm('Dealer Closed the game')) {
-      this.handleAutomaticFoldingAlert()
-    }
+    alert("Dealer closed the game.")
+    this.handleAutomaticFoldingAlert()
   }
 
   handleAutomaticFoldingAlert() {
@@ -582,13 +582,15 @@ class Game extends React.Component {
 
   handleCloseGame(e){
     e.preventDefault()
-    requestPUTTo(
-      `http://localhost:3000/games/${this.state.id}`,
-      {
-        game_is_active: true,
-        is_closed: true,
-      }
-    )
+    if (window.confirm('Are you sure you want to close the game?')) {
+      requestPUTTo(
+        `http://localhost:3000/games/${this.state.id}`,
+        {
+          is_closed: true,
+        }
+      )
+    }
+
   }
 
   readyForRoundStart() {
@@ -663,6 +665,7 @@ class Game extends React.Component {
 
     return (
       <div>
+        {this.state.is_closed && this.dealerClosed()}
         { alert_props &&
           <TurnActionAlert
             {...this.state.alert_props}
