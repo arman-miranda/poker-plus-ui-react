@@ -12,6 +12,8 @@ import CommunityCardModal from "./communityCardModal";
 import TurnActionAlert from '../sharedComponents/Alerts/TurnActionAlert';
 import { parseCards } from '../../shared/card_generator.js';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faDotCircle } from '@fortawesome/free-solid-svg-icons'
 
 class Game extends React.Component {
   constructor(props) {
@@ -34,7 +36,11 @@ class Game extends React.Component {
       joining_players_count: 0,
       players: [],
       current_logs: "",
-      communityCards: {}
+      communityCards: {},
+      last_action: "",
+      new_player: "",
+      dealt_player: "",
+      round_is_ended: false
     }
   }
 
@@ -70,6 +76,7 @@ class Game extends React.Component {
   }
 
   handleGameStateSetting() {
+    this.updateGameLog('new_round_start')
     this.handleCurrentSeatAssignments()
     this.handleCurrentComCards()
   }
@@ -93,10 +100,18 @@ class Game extends React.Component {
             this.setState({
               players: data.new_players
             }, () => this.updateSeatNames())
+          } else if (data.alert_type === 'game_start') {
+            this.updateGameLog('session_start')
+            this.props.handleAlerts(data)
           } else if (data.action_type === 'game_start') {
+            this.updateGameLog(data.action_type)
             this.setState({
               ...data
             })
+          } else if (data.event === 'cards_dealt') {
+            this.setState({
+             ...data
+            }, () => this.updateGameLog(data.event))
           } else if (data.action_type === 'player_round_creation') {
             this.setState({
               ...data
@@ -109,9 +124,13 @@ class Game extends React.Component {
             this.setState({
               alert_props: {...data}
             })
+            this.updateGameLog(data.alert_type)
           } else if (data.event === 'round_ended') {
+            this.setState({ round_is_ended: true })
             this.handleRoundEnd(data.round)
           } else if (data.event === 'community_card_update') {
+            this.setState({ round_is_ended: false })
+            this.updateGameLog(data.event)
             if(data.community_cards.length > 0) {
               this.getCurrentComCards()
             }
@@ -125,6 +144,18 @@ class Game extends React.Component {
             })
           } else if (data.action_type === 'game_closed') {
             this.dealerClosed()
+          } else if (data.event === 'player_turn'){
+            this.setState({
+              last_action: {...data}
+            })
+            this.updateGameLog(data.event)
+          } else if (data.message === 'NewPlayer') {
+            this.setState({
+              new_player: {...data}
+            })
+            this.updateGameLog(data.message)
+          } else if (data.message === 'session_end') {
+            this.updateGameLog(data.message)
           } else {
             this.props.handleAlerts(data)
           }
@@ -358,14 +389,28 @@ class Game extends React.Component {
     span.setAttribute("class", "seatSpan")
     span.textContent = ` ${player.player_name}`
 
-    seat_position.parentNode
-      .insertBefore(span, seat_position.nextSibling)
+    if (player.seat_number === this.state.button){
+      seat_position.parentNode
+        .insertBefore(span, seat_position.nextSibling.nextSibling)
+    } else {
+      seat_position.parentNode
+        .insertBefore(span, seat_position.nextSibling)
+    }
     seat_position.setAttribute("disabled","disabled")
 
     if (player.player_name === this.props.currentUser.username) {
       this.showOwnCards(player)
     }
   }
+
+  renderIcon(seat){
+    if (seat === this.state.button) {
+      return(
+        <FontAwesomeIcon icon="dot-circle" />
+      )
+    }
+  }
+
 
   showOwnCards(player) {
     const { joining_players } = this.state
@@ -393,7 +438,12 @@ class Game extends React.Component {
 
     let cardsSpan = document.createElement('span')
     cardsSpan.setAttribute("id", cardsSpanId)
-    seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+
+    if (player.seat_number === this.state.button){
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling.nextSibling)
+    } else {
+      seatSpan.parentNode.insertBefore(cardsSpan, seatSpan.nextSibling)
+    }
 
     game.then(
       result => {
@@ -517,6 +567,7 @@ class Game extends React.Component {
           getDataFromServer(
             `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
           )
+          this.updateGameLog("insufficient_players")
         } else {
           requestPUTTo(
             `http://localhost:3000/games/${this.state.id}`,
@@ -574,8 +625,13 @@ class Game extends React.Component {
       }
 
       joining_players.forEach(joining_player => {
-        let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling
-        player_name.setAttribute("style", "color: black")
+        if (joining_player.seat_number === this.state.button){
+          let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling.nextSibling
+          player_name.setAttribute("style", "color: black")
+        } else {
+          let player_name = document.getElementById(`seat_number_${joining_player.seat_number}`).nextSibling
+          player_name.setAttribute("style", "color: black")
+        }
       })
     }
   }
@@ -616,6 +672,77 @@ class Game extends React.Component {
     })
     if (playerPosition){
       return playerPosition.player_name
+    }
+  }
+
+  updateGameLog(action){
+    const { round_number } = this.state
+    const { last_action } = this.state
+    const { new_player } = this.state
+    let game_log = document.getElementById(`game_logs`)
+    let player = this.getPlayerPosition(this.state.currently_playing)
+    let p = document.createElement('p')
+    let cardType = ["flop","turn","river"][round_number-1]
+
+    if(action === 'session_start'){
+      p.textContent = 'Dealer started the game.'
+      game_log.prepend(p)
+    } else if(action === 'insufficient_players'){
+      p.textContent = 'Number of willing participants are insufficient.\n Dealer will try to start the game again after a few moments.'
+      game_log.prepend(p)
+    } else if(action === 'game_start'){
+      p.textContent = 'Dealer is dealing cards.'
+      game_log.prepend(p)
+    } else if(action === 'cards_dealt'){
+      let dp = this.getPlayerPosition(this.state.dealt_player)
+      p.textContent = ` ${dp} has set their cards.`
+      game_log.prepend(p)
+      if (this.state.game_is_active && this.readyForRoundStart()) {
+        this.updateGameLog("ready_for_round_start")
+      }
+    } else if(action === 'ready_for_round_start'){
+      p.textContent = "All players have set their cards. Dealer may start the round."
+      game_log.prepend(p)
+    } else if (action === 'small_blind'){
+      p.textContent = 'Dealer has started the round.'
+      game_log.prepend(p)
+    } else if (action === 'new_round_start' && this.state.community_card_id !== null){
+      let cardType = ["flop","turn","river"][round_number-1]
+      p.textContent = `Dealer is now setting the ${cardType}.`
+      game_log.prepend(p)
+    } else if (action === 'community_card_update' && this.state.community_card_id !== null){
+      let cardType = ["flop","turn","river"][round_number-2]
+      p.textContent = `Dealer has set the ${cardType}.`
+      game_log.prepend(p)
+      this.updateGameLog("awaiting_player_action")
+    } else if (action === 'session_end'){
+      p.textContent = 'Game session has ended.'
+      game_log.prepend(p)
+    } else if (action === 'awaiting_player_action'){
+      if (!this.state.round_is_ended) {
+        p.textContent = `Waiting for ${player}'s action...`
+        game_log.prepend(p)
+      }
+    } else if (action === 'player_turn'){
+      let prevPlayer = this.getPlayerPosition(last_action.player)
+      if (last_action.last_action === "small_blind") {
+        p.textContent = ` ${prevPlayer} has paid the small blind.`
+        game_log.prepend(p)
+      }
+      if (last_action.last_action === "big_blind") {
+        p.textContent = ` ${prevPlayer} has paid the big blind.`
+        game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
+      }
+      if (last_action.last_action !== null && last_action.last_action !== "small_blind" && last_action.last_action !== "big_blind") {
+        let prevPlayer = this.getPlayerPosition(last_action.player)
+        p.textContent = ` ${prevPlayer} ${last_action.last_action}s.`
+        game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
+      }
+    } else if (action === 'NewPlayer') {
+      p.textContent = ` ${new_player.confirmed_player} joined the game.`
+      game_log.prepend(p)
     }
   }
 
@@ -742,39 +869,39 @@ class Game extends React.Component {
         <form>
           <button name="seat_number" className="seatButton" id="seat_number_1" value="1" disabled={game_is_active}>
             Seat 1
-          </button><br/>
+          </button>{this.renderIcon(1) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_2" value="2" disabled={game_is_active}>
             Seat 2
-          </button><br/>
+          </button>{this.renderIcon(2) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_3" value="3" disabled={game_is_active}>
             Seat 3
-          </button><br/>
+          </button>{this.renderIcon(3) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_4" value="4" disabled={game_is_active}>
             Seat 4
-          </button><br/>
+          </button>{this.renderIcon(4) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_5" value="5" disabled={game_is_active}>
             Seat 5
-          </button><br/>
+          </button>{this.renderIcon(5) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_6" value="6" disabled={game_is_active}>
             Seat 6
-          </button><br/>
+          </button>{this.renderIcon(6) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_7" value="7" disabled={game_is_active}>
             Seat 7
-          </button><br/>
+          </button>{this.renderIcon(7) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_8" value="8" disabled={game_is_active}>
             Seat 8
-          </button><br/>
+          </button>{this.renderIcon(8) }<br/>
           <button name="seat_number" className="seatButton" id="seat_number_9" value="9" disabled={game_is_active}>
             Seat 9
-          </button><br/>
+          </button>{this.renderIcon(9) }<br/>
         </form>
-        { game_is_active &&
+
           <div>
             <h4>Game Logs:</h4>
             <div id="game_logs">
             </div>
           </div>
-        }
+
       </div>
     )
   }
