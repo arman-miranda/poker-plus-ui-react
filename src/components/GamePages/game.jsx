@@ -27,6 +27,7 @@ class Game extends React.Component {
       player_preferred_seat: 0,
       dealer_name: null,
       game_is_active: false,
+      is_closed: false,
       game_name: null,
       community_card_modal: "",
       old_community_card_edit: null,
@@ -141,6 +142,8 @@ class Game extends React.Component {
             this.setState({
               ...data
             })
+          } else if (data.action_type === 'game_closed') {
+            this.dealerClosed()
           } else if (data.event === 'player_turn'){
             this.setState({
               last_action: {...data}
@@ -580,6 +583,11 @@ class Game extends React.Component {
     }
   }
 
+  dealerClosed(){
+    alert("Dealer closed the game.")
+    this.handleAutomaticFoldingAlert()
+  }
+
   handleAutomaticFoldingAlert() {
     this.handleShowGameLobby()
   }
@@ -626,6 +634,19 @@ class Game extends React.Component {
         }
       })
     }
+  }
+
+  handleCloseGame(e){
+    e.preventDefault()
+    if (window.confirm('Are you sure you want to close the game?')) {
+      requestPUTTo(
+        `http://localhost:3000/games/${this.state.id}`,
+        {
+          is_closed: true,
+        }
+      )
+    }
+
   }
 
   readyForRoundStart() {
@@ -771,6 +792,7 @@ class Game extends React.Component {
 
     return (
       <div>
+        {this.state.is_closed && this.dealerClosed()}
         { alert_props &&
           <TurnActionAlert
             {...this.state.alert_props}
@@ -787,6 +809,9 @@ class Game extends React.Component {
         <br />
         { this.checkIfExistingPlayer() && !game_is_active &&
           <button onClick={this.handleLeaveGame.bind(this)}>Leave Game</button>
+        }
+        { this.props.currentUser.id === this.state.dealer_id &&
+          <button name="close_game" onClick={this.handleCloseGame.bind(this)}>Close Game</button>
         }
         <h4>
           Game #{params.id}: {game_name} <br />
