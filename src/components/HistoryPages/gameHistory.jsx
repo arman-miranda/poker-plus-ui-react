@@ -2,6 +2,7 @@ import React from 'react';
 import '../../stylesheets/games_table.css';
 import { getDataFromServer } from '../../shared/request_handlers'
 import { parseCards } from '../../shared/card_generator.js';
+import { withRouter } from 'react-router';
 
 class GameHistory extends React.Component {
   constructor(props) {
@@ -228,6 +229,7 @@ class GameHistory extends React.Component {
   render() {
     return(
       <div>
+        <button onClick={() => this.props.history.go(-1)}>Back</button>
         <div id="gameInfoDiv" /><br />
 
         <div id="communityCardDiv">
