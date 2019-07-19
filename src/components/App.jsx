@@ -10,6 +10,11 @@ import PageNotFound from '../public/pageNotFound'
 import Cable from 'actioncable'
 import { deleteDataFromServer } from '../shared/request_handlers'
 import Alert from './sharedComponents/Alerts/Alert'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import {faDotCircle } from '@fortawesome/free-solid-svg-icons'
+
+library.add(fab, faDotCircle)
 
 class App extends React.Component {
   constructor(props) {
