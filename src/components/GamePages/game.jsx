@@ -36,7 +36,8 @@ class Game extends React.Component {
       communityCards: {},
       last_action: "",
       new_player: "",
-      dealt_player: ""
+      dealt_player: "",
+      round_is_ended: false
     }
   }
 
@@ -122,8 +123,10 @@ class Game extends React.Component {
             })
             this.updateGameLog(data.alert_type)
           } else if (data.event === 'round_ended') {
+            this.setState({ round_is_ended: true })
             this.handleRoundEnd(data.round)
           } else if (data.event === 'community_card_update') {
+            this.setState({ round_is_ended: false })
             this.updateGameLog(data.event)
             if(data.community_cards.length > 0) {
               this.getCurrentComCards()
@@ -145,6 +148,8 @@ class Game extends React.Component {
             this.setState({
               new_player: {...data}
             })
+            this.updateGameLog(data.message)
+          } else if (data.message === 'session_end') {
             this.updateGameLog(data.message)
           } else {
             this.props.handleAlerts(data)
@@ -445,7 +450,6 @@ class Game extends React.Component {
       this.setState({ community_card_modal: cardType })
       if (this.props.currentUser.id === this.state.dealer_id) { this.incrementRound(round+1) }
     } else {
-      this.updateGameLog("session_end")
       this.app.reset_game_state()
     }
   }
@@ -539,6 +543,7 @@ class Game extends React.Component {
           getDataFromServer(
             `http://localhost:3000/games/${this.state.id}/reset_game_start_request`
           )
+          this.updateGameLog("insufficient_players")
         } else {
           requestPUTTo(
             `http://localhost:3000/games/${this.state.id}`,
@@ -635,12 +640,21 @@ class Game extends React.Component {
     if(action === 'session_start'){
       p.textContent = 'Dealer started the game.'
       game_log.prepend(p)
+    } else if(action === 'insufficient_players'){
+      p.textContent = 'Number of willing participants are insufficient.\n Dealer will try to start the game again after a few moments.'
+      game_log.prepend(p)
     } else if(action === 'game_start'){
       p.textContent = 'Dealer is dealing cards.'
       game_log.prepend(p)
     } else if(action === 'cards_dealt'){
       let dp = this.getPlayerPosition(this.state.dealt_player)
       p.textContent = ` ${dp} has set their cards.`
+      game_log.prepend(p)
+      if (this.state.game_is_active && this.readyForRoundStart()) {
+        this.updateGameLog("ready_for_round_start")
+      }
+    } else if(action === 'ready_for_round_start'){
+      p.textContent = "All players have set their cards. Dealer may start the round."
       game_log.prepend(p)
     } else if (action === 'small_blind'){
       p.textContent = 'Dealer has started the round.'
@@ -653,9 +667,15 @@ class Game extends React.Component {
       let cardType = ["flop","turn","river"][round_number-2]
       p.textContent = `Dealer has set the ${cardType}.`
       game_log.prepend(p)
+      this.updateGameLog("awaiting_player_action")
     } else if (action === 'session_end'){
-      p.textContent = 'Game Sessions has ended.'
+      p.textContent = 'Game session has ended.'
       game_log.prepend(p)
+    } else if (action === 'awaiting_player_action'){
+      if (!this.state.round_is_ended) {
+        p.textContent = `Waiting for ${player}'s action...`
+        game_log.prepend(p)
+      }
     } else if (action === 'player_turn'){
       let prevPlayer = this.getPlayerPosition(last_action.player)
       if (last_action.last_action === "small_blind") {
@@ -665,11 +685,13 @@ class Game extends React.Component {
       if (last_action.last_action === "big_blind") {
         p.textContent = ` ${prevPlayer} has paid the big blind.`
         game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
       }
       if (last_action.last_action !== null && last_action.last_action !== "small_blind" && last_action.last_action !== "big_blind") {
         let prevPlayer = this.getPlayerPosition(last_action.player)
         p.textContent = ` ${prevPlayer} ${last_action.last_action}s.`
         game_log.prepend(p)
+        this.updateGameLog("awaiting_player_action")
       }
     } else if (action === 'NewPlayer') {
       p.textContent = ` ${new_player.confirmed_player} joined the game.`
