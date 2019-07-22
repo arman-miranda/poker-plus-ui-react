@@ -881,13 +881,14 @@ class Game extends React.Component {
                   cardSet.map((i) => {
                     return(
                       <div key={i}>
-                        <select id={(community_card_modal) + (i+1) + "_suit"} required={true} defaultValue={ community_card_modal === "edit" ? old_community_card_edit.suit : ""} onChange={this.handleCommunityCardSelectChange.bind(this)}>
-                          <option disabled value=""> -- </option>
-                          {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
-                        </select>
                         <select id={(community_card_modal) + (i+1) + "_value"} required={true} defaultValue={ community_card_modal === "edit" ? old_community_card_edit.number : ""}  onChange={this.handleCommunityCardSelectChange.bind(this)}>
                           <option disabled value=""> -- </option>
                           {NUMBERS.map((number, i) => { return <option key={number + i} value={i+1}>{number}</option> })}
+                        </select>
+                        &nbsp;of&nbsp;
+                        <select id={(community_card_modal) + (i+1) + "_suit"} required={true} defaultValue={ community_card_modal === "edit" ? old_community_card_edit.suit : ""} onChange={this.handleCommunityCardSelectChange.bind(this)}>
+                          <option disabled value=""> -- </option>
+                          {SUITS.map((suit) => { return <option key={suit + i} value={suit}>{suit.charAt(0).toUpperCase()+suit.slice(1)+"s"}</option> })}
                         </select>
                       </div>
                     )
@@ -905,13 +906,6 @@ class Game extends React.Component {
             <form id="playerCardModal" method="post" onSubmit={this.handlePlayerCardModalSubmit.bind(this)}>
               <h4>Set Your Cards</h4>
               Card 1:
-                <select id="suit1" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit1}>
-                  <option disabled value=""> -- </option>
-                  <option value="diamond">Diamonds</option>
-                  <option value="heart">Hearts</option>
-                  <option value="spade">Spades</option>
-                  <option value="club">Clubs</option>
-                </select>
                 <select id="value1" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.value1}>
                   <option disabled value=""> -- </option>
                   <option value="1">Ace</option>
@@ -927,15 +921,17 @@ class Game extends React.Component {
                   <option value="11">Jack</option>
                   <option value="12">Queen</option>
                   <option value="13">King</option>
-                </select><br />
-              Card 2:
-                <select id="suit2" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit2}>
+                </select>
+                &nbsp;of&nbsp;
+                <select id="suit1" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit1}>
                   <option disabled value=""> -- </option>
                   <option value="diamond">Diamonds</option>
                   <option value="heart">Hearts</option>
                   <option value="spade">Spades</option>
                   <option value="club">Clubs</option>
                 </select>
+                <br />
+              Card 2:
                 <select id="value2" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.value2}>
                   <option disabled value=""> -- </option>
                   <option value="1">Ace</option>
@@ -951,7 +947,16 @@ class Game extends React.Component {
                   <option value="11">Jack</option>
                   <option value="12">Queen</option>
                   <option value="13">King</option>
-                </select><br />
+                </select>
+                &nbsp;of&nbsp;
+                <select id="suit2" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit2}>
+                  <option disabled value=""> -- </option>
+                  <option value="diamond">Diamonds</option>
+                  <option value="heart">Hearts</option>
+                  <option value="spade">Spades</option>
+                  <option value="club">Clubs</option>
+                </select>
+                <br />
               <input type="submit" value="Set Cards" />
             </form>
           </CommunityCardModal>

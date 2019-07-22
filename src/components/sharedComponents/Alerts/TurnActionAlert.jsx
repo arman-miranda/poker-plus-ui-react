@@ -57,7 +57,7 @@ class TurnActionAlert extends React.Component {
           Call / Check
         </a>
         <a href='#' onClick={this.handleSelectedAction.bind(this, "raise")}>
-          Raise / Bet
+          Bet
         </a>
         <a href='#' onClick={this.handleSelectedAction.bind(this, "fold")}>
           Fold
