@@ -22,7 +22,7 @@ class Game extends React.Component {
       alert_props: null,
       showPlayerWaitingList: null,
       showGameWaitinglist: null,
-      showCardSelectionScreen: null,
+      showCardSelectionScreen: "",
       showGameLobby: null,
       player_preferred_seat: 0,
       dealer_name: null,
@@ -40,7 +40,12 @@ class Game extends React.Component {
       last_action: "",
       new_player: "",
       dealt_player: "",
-      round_is_ended: false
+      round_is_ended: false,
+      suit1: "",
+      value1: "",
+      suit2: "",
+      value2: "",
+      cardsAreSet: false
     }
   }
 
@@ -58,6 +63,15 @@ class Game extends React.Component {
         river1_suit: null,
         river1_value: null
       }
+    })
+  }
+
+  nullifyPlayerCards() {
+    this.setState({
+      suit1: "",
+      value1: "",
+      suit2: "",
+      value2: ""
     })
   }
 
@@ -583,6 +597,32 @@ class Game extends React.Component {
     }
   }
 
+  handlePlayerCardModalSubmit(e){
+    e.preventDefault()
+    this.nullifyPlayerCards()
+    const {showCardSelectionScreen} = this.state
+    var url = `http://localhost:3000${showCardSelectionScreen}/cards`
+    var body = {
+      player_session_id: this.state.id,
+      card1_suit: this.state.suit1,
+      card1_value: this.state.value1,
+      card2_suit: this.state.suit2,
+      card2_value: this.state.value2
+    }
+
+    requestPOSTTo(url, body).then(results => {
+      if(results.status === 200) {
+        this.setState({showCardSelectionScreen: ""}, () => this.updateSeatNames())
+      }
+    })
+  }
+
+  onSelectChange(e) {
+    this.setState({
+      [e.target.id]: e.target.value
+    })
+  }
+
   dealerClosed(){
     alert("Dealer closed the game.")
     this.handleAutomaticFoldingAlert()
@@ -778,10 +818,6 @@ class Game extends React.Component {
 
     }
 
-    if(showCardSelectionScreen && this.gameIncludesCurrentUser()) {
-      return <Redirect to={showCardSelectionScreen} />
-    }
-
     if(showCardSelectionScreen && !this.gameIncludesCurrentUser()) {
       window.location.reload()
     }
@@ -865,6 +901,62 @@ class Game extends React.Component {
             <br />
           </div>
         }
+        <div id='player_cards'>
+          <CommunityCardModal displayModal={showCardSelectionScreen !== "" && this.gameIncludesCurrentUser()}>
+            <form id="playerCardModal" method="post" onSubmit={this.handlePlayerCardModalSubmit.bind(this)}>
+              <h4>Set Your Cards</h4>
+              Card 1:
+                <select id="suit1" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit1}>
+                  <option disabled value=""> -- </option>
+                  <option value="diamond">Diamonds</option>
+                  <option value="heart">Hearts</option>
+                  <option value="spade">Spades</option>
+                  <option value="club">Clubs</option>
+                </select>
+                <select id="value1" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.value1}>
+                  <option disabled value=""> -- </option>
+                  <option value="1">Ace</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                  <option value="11">Jack</option>
+                  <option value="12">Queen</option>
+                  <option value="13">King</option>
+                </select><br />
+              Card 2:
+                <select id="suit2" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.suit2}>
+                  <option disabled value=""> -- </option>
+                  <option value="diamond">Diamonds</option>
+                  <option value="heart">Hearts</option>
+                  <option value="spade">Spades</option>
+                  <option value="club">Clubs</option>
+                </select>
+                <select id="value2" onChange={this.onSelectChange.bind(this)} required={true} value={this.state.value2}>
+                  <option disabled value=""> -- </option>
+                  <option value="1">Ace</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                  <option value="11">Jack</option>
+                  <option value="12">Queen</option>
+                  <option value="13">King</option>
+                </select><br />
+              <input type="submit" value="Set Cards" />
+            </form>
+          </CommunityCardModal>
+        </div>
         <div id="communityCards" />
         <form>
           <button name="seat_number" className="seatButton" id="seat_number_1" value="1" disabled={game_is_active}>
