@@ -23,7 +23,7 @@ class PlayerHeader extends React.Component {
 
   handleLogout() {
     localStorage.currentUser = null;
-    deleteDataFromServer('localhost:3000/logout')
+    deleteDataFromServer('http://localhost:3000/logout')
   }
 
   render() {
