@@ -1,0 +1,28 @@
+.player_header-index_link {
+  float: left;
+}
+
+.player_header-username_link {
+  cursor: pointer;
+  float: right;
+  margin: 10px 0px;
+}
+
+.player_header-dropdown_div {
+  display: none;
+  flex-wrap: wrap;
+  width: 100px;
+  right: 10px;
+  position: absolute;
+  background: white;
+  border: 1px solid black;
+}
+
+.player_header-dropdown_div > a {
+  width: 100px;
+  text-align: right;
+}
+
+.clearfix {
+  overflow: auto;
+}

@@ -13,6 +13,7 @@ import Alert from './sharedComponents/Alerts/Alert'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import {faDotCircle } from '@fortawesome/free-solid-svg-icons'
+import PlayerHeader from './sharedComponents/PlayerHeader';
 
 library.add(fab, faDotCircle)
 
@@ -81,6 +82,7 @@ class App extends React.Component {
   render() {
     return(
       <div>
+        {this.state.currentUser && <PlayerHeader currentUser={this.state.currentUser}/>}
         <Router>
           { this.state.alert_props &&
             <div className='notifications'>

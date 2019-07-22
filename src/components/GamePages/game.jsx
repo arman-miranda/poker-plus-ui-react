@@ -852,7 +852,6 @@ class Game extends React.Component {
         <h4>
           Game #{params.id}: {game_name} <br />
           Dealer: {dealer_name}
-          <span style={{float:"right"}}>{this.props.currentUser.username}</span><br />
           { game_is_active &&
             <p>Button: Seat #{this.state.button}: {this.getPlayerPosition(this.state.button)}</p>
           }
