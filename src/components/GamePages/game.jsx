@@ -45,7 +45,8 @@ class Game extends React.Component {
       value1: "",
       suit2: "",
       value2: "",
-      cardsAreSet: false
+      cardsAreSet: false,
+      bet_raised: false
     }
   }
 
@@ -90,6 +91,7 @@ class Game extends React.Component {
   }
 
   handleGameStateSetting() {
+    this.setState({ bet_raised: false })
     this.updateGameLog('new_round_start')
     this.handleCurrentSeatAssignments()
     this.handleCurrentComCards()
@@ -139,6 +141,8 @@ class Game extends React.Component {
               alert_props: {...data}
             })
             this.updateGameLog(data.alert_type)
+          } else if (data.event === 'bet_raised') {
+            this.setState({ bet_raised: true })
           } else if (data.event === 'round_ended') {
             this.setState({ round_is_ended: true })
             this.handleRoundEnd(data.round)
@@ -834,6 +838,7 @@ class Game extends React.Component {
             {...this.state.alert_props}
             round_just_started = {this.state.round_just_started}
             game_id = {this.state.id}
+            bet_raised = {this.state.bet_raised}
             currently_playing = { this.state.currently_playing }
             joining_players = {this.state.joining_players}
             handleAlertDismissal = {this.handleAlertDismissal.bind(this)}

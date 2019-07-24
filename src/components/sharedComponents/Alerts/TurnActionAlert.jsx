@@ -5,13 +5,15 @@ class TurnActionAlert extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      call_check_action: ""
+      call_check_action: "",
+      raise_bet_action: ""
     }
   }
 
   componentDidMount() {
     this.props.handleAppAlertDismissal()
     this.determineCallCheckAction()
+    this.determineRaiseBetAction()
   }
 
   handleSelectedAction(action) {
@@ -33,15 +35,29 @@ class TurnActionAlert extends React.Component {
 
 
   determineCallCheckAction() {
-    const { last_action } = this.props
+    const { bet_raised } = this.props
 
-    if (last_action === 'check' || last_action === 'bet'){
+    if (bet_raised){
       this.setState({
-        call_check_action: 'check'
+        call_check_action: 'call'
       });
     } else {
       this.setState({
-        call_check_action: 'call'
+        call_check_action: 'check'
+      });
+    }
+  }
+
+  determineRaiseBetAction() {
+    const { bet_raised } = this.props
+
+    if (bet_raised){
+      this.setState({
+        raise_bet_action: 'raise'
+      });
+    } else {
+      this.setState({
+        raise_bet_action: 'bet'
       });
     }
   }
@@ -49,15 +65,16 @@ class TurnActionAlert extends React.Component {
   render() {
     const { body } = this.props
     const { call_check_action } = this.state
+    const { raise_bet_action } = this.state
 
     return(
       <div>
         { body }
-        <a href='#' onClick={this.handleSelectedAction.bind(this, "call")}>
-          Call / Check
+        <a href='#' onClick={this.handleSelectedAction.bind(this, call_check_action)}>
+          { call_check_action.charAt(0).toUpperCase() + call_check_action.slice(1) }
         </a>
-        <a href='#' onClick={this.handleSelectedAction.bind(this, "raise")}>
-          Bet
+        <a href='#' onClick={this.handleSelectedAction.bind(this, raise_bet_action)}>
+          { raise_bet_action.charAt(0).toUpperCase() + raise_bet_action.slice(1) }
         </a>
         <a href='#' onClick={this.handleSelectedAction.bind(this, "fold")}>
           Fold
